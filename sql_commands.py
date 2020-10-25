@@ -84,28 +84,3 @@ def post_new_user(user):
     
     return get_user_by_row('*', id_number[0][0])
  
-
-
-
-"""
-x = get_user_by_row(rows='*', id_number=0)
-print(x)
-print(x == True)
-print(x is None)
-print(bool(x))
-
-print(update_user_row('name', 'waterdog', 8))
-
-user = {'name': 'PEPITO', 'last_name': 'ROMIO', 'email': 'VIRUK-PO@GMAIL.COM', 'date': 'martes 8/9 a las 15', 'password': 'jdsnfssdnlksij998h'}
-print(save_new_user(user))
-print(show_users())
-
-
-
-print()
-print(show_users(full_data=True))
-"""
-"""
-for x in range(1, 16):
-    print(get_user_by_row(['name', 'last_name'], id_number=x))
-"""

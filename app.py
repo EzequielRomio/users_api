@@ -1,4 +1,3 @@
-# para correr reuqeriment tirar pip install -r nombredearchivo
 import os
 import json
 import logging
@@ -11,18 +10,9 @@ import sql_commands
 from flask import Flask, request
 
 
-USERS_FILE = os.path.abspath(os.environ.get('USERS_FILE', 'users.csv'))
+#USERS_FILE = os.path.abspath(os.environ.get('USERS_FILE', 'users.csv'))
 ID_FILE = os.path.abspath(os.environ.get('ID_FILE', 'settings.json'))
 USER_FIELDS = ('id','name', 'last_name', 'email', 'date', 'password')
-
-
-if not os.path.exists(USERS_FILE):
-    with open(USERS_FILE, 'w'):
-        pass
-
-if not os.path.exists(ID_FILE):
-    with open(ID_FILE, 'w'):
-        pass
 
 
 
@@ -201,26 +191,3 @@ def valid_id_number(id_number):
     else:
         return True
 
-
-#################################################################
-
-
-
-
-
-"""
-TODO - si no tiene los campos rekeridos (nombre o email), devolver un 400 + mensaje 'necesitas el campo rekerido tal...'
-TODO - levantar el datetime Y DEVOLVERLO EN EL POSTO O GET O PUT O LOQ SEA
-TODO - implementar el PUT /users/id PASAR UN JSON CON REQUERIMIENTO EJEMPLO NOMBRE, Y VA A MODIFICAR ESO CON EL VALOR NUEVO
-TODO - SI EL USUARIO NO EXISTE DEVOLVER UN 404
-TODO - crear test para post, para put, para post q devuelve 400, y para get
-TODO - RENOMBRAR HEADERS
-- RENOMBRAR SETTINGS.JSON STAMPS POR EJEMPLO 
-
-TODO - HASHEAR LA PASS
-TODO - CON EL TEST Q CREA AL USUARIO, Q CHEKEE SI LA PASS ESTA HASHEADA
-TODO - DEJAR EL ID EN UNA SOLA FUNCION
-TODO - GET_USER/USERS_FULL_DATA EN UNA SOLA FUNCION, VALE (full_data=False)
-TODO - EL SAVE_USER DEBE GUARDAR EL ID EN EL JSON (O SEA TOD O EN LA MISMA FUNCION)
-- el test levante el users_test.csv y que compruebe ahi si la conatreseña cambio, y que deje de devolverlo el post
-"""
