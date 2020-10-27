@@ -92,30 +92,37 @@ def test_put_password_ok():
 def test_put_ok():
     
     r_test = create_test_enviroment()
+    
+    data = {
+        'name': 'Camila', 
+        'last_name': 'Grosso', 
+        'email': 'camilagros@etc.com', 
+        'date': '2020-10-06 19:37:38',
+        'password': 'k-1000-A'}
+    
+    for k, v in data.items():
 
-    data = {'name': 'Camila', 'last_name': 'grosso', 'email': 'camigrosso@gmail.com'}
-    
-    r = requests.put('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps(data))
-    
-    user = r.json()
-    r_test['id'] = str(r_test['id'])
-    user['id'] = str(user['id'])
-    
+        r = requests.put('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps({k: v}))
+        if k == 'date':
+            assert r.status_code == 400
+            continue
+        assert r.status_code == 200
+        user = r.json()
+        print(user)
+        
     for key in data.keys():
         if key == 'date':
-            assert not data[key] == user[key]
+            continue
+        elif key == 'password':
+            assert data[key] != user[key]
         elif key != 'id':
             print(data[key], user[key])
             assert data[key] == user[key]
-            assert user[key] != r_test[key]
-        
+    
     for key in user.keys():
         if key not in data:
             assert user[key] == r_test[key]    
     
-    print(r.status_code)
-    print(r.json())
-    assert r.status_code == 200
      
     print('test passed')
 
@@ -149,7 +156,6 @@ def test_get_users_list():
     assert isinstance(r.json(), list)
     assert r.status_code == 200
     print('test passed')
-
 
 
 

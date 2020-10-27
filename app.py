@@ -15,6 +15,8 @@ ID_FILE = os.path.abspath(os.environ.get('ID_FILE', 'settings.json'))
 USER_FIELDS = ('id','name', 'last_name', 'email', 'date', 'password')
 
 
+class ServerError(Exception):
+    pass
 
 class RequirementError(Exception):
     pass
@@ -95,10 +97,13 @@ def get_user_id():
         data = json.load(f)
     return data['last_id'] + 1
 """
-def search_user_by_id(id_number, users_list):
+def search_user_by_id(id_number, users_list, valid_id=False):
     for user in users_list:
         if user['id'] == id_number or user['id'] == int(id_number):
-            return user
+            if valid_id:
+                return True
+            else:
+                return user
     
     raise IdNotFoundError(id_number)
 
@@ -114,22 +119,27 @@ def users_put(user_id):
     data_to_modify.pop('id', None)
     data_to_modify.pop('date', None)
     try:
-        user_to_modify = search_user_by_id(user_id, users)
+        user_modified = search_user_by_id(user_id, users)
         if 'password' in data_to_modify:
             data_to_modify['password'] = hash_password(data_to_modify['password'])
-        user_to_modify.update(data_to_modify)
             
     except IdNotFoundError as e:
         return json.dumps({'Error': e.send_error_message()}), 404
 
-    sql_response = sql_commands.update_user_row(user_to_modify, user_id)
-    print(sql_response)
-    user_modified = {}
-    for ix, value in enumerate(sql_response):
-        if USER_FIELDS[ix] == 'password' and 'password' not in data_to_modify:
-            continue
+    if not data_to_modify:
+        return json.dumps({'Error': 'ERROR 400 "NO DATA TO MODIFY"'}), 400
+    
+    try:
+        sql_commands.update_user_row(data_to_modify, user_id)
 
-        user_modified[USER_FIELDS[ix]] = value
+        for key in data_to_modify.keys():
+            if data_to_modify[key] == user_modified['id']:
+                raise ServerError
+            
+
+    except ServerError:
+        return json.dumps({'Error': 'Server problem'}), 500
+
     
     
     """
@@ -155,10 +165,11 @@ def user_post():
             user['password'] = hash_password(user['password'])
             #save_user(user)
             sql_response = sql_commands.post_new_user(user)
-            
+                            
             for value in sql_response[0]:
                 if isinstance(value, int):
                     user['id'] = value
+            app.logger.info('USERS RESULT:\n\n{}'.format(user))
             return json.dumps(user)
 
     except MissingFieldError as e:
@@ -172,6 +183,8 @@ def valid_request(data):
             raise MissingFieldError(header)
     return True
 
+
+"""
 def save_user(data):
     with open(USERS_FILE, 'a') as f:
         f.write(','.join([str(data[k]) for k in USER_FIELDS]))
@@ -180,7 +193,7 @@ def save_user(data):
     id_data = {'last_id': data['id']}
     with open(ID_FILE, 'w') as f:
         f.write(json.dumps(id_data))
-
+"""
 
 def hash_password(password):
     return hashlib.md5(password.encode()).hexdigest()

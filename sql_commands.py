@@ -1,4 +1,5 @@
 import sqlite3
+import logging
 
 
 def get_users(cursor, row):
@@ -55,17 +56,19 @@ def get_user_by_row(rows, id_number):
 
 
 def update_user_row(new_data, id_number):
-    for row in new_data.keys():
-        value = new_data[row]
+    for k, v in new_data.items():
+        row = k
+        value = v
 
     query_command = 'UPDATE users SET {} = "{}" WHERE id = {}'.format(row, value, id_number)
     
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
-    query = cursor.execute(query_command)
+    cursor.execute(query_command)
 
     conn.commit()
-    return query.fetchall()
+
+ 
 
 
 def post_new_user(user):
