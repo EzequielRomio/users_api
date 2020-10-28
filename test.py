@@ -8,9 +8,9 @@ def create_test_enviroment():
     test_enviroment = {
         'name': 'TEST',
         'last_name': 'TEST_TEST',
-        'email': 'TEST@perro.com',
+        'email': 'TEST@test.com',
         'date': 'none',
-        'password': 'ehehehehhe'
+        'password': 'test-test'
     }    
     r_test = requests.post('http://localhost:5001/users', data=json.dumps(test_enviroment))
     return r_test.json()
