@@ -9,9 +9,6 @@ import sql_commands
 
 from flask import Flask, request
 
-
-#USERS_FILE = os.path.abspath(os.environ.get('USERS_FILE', 'users.csv'))
-ID_FILE = os.path.abspath(os.environ.get('ID_FILE', 'settings.json'))
 USER_FIELDS = ('id','name', 'last_name', 'email', 'date', 'password')
 
 
@@ -73,30 +70,9 @@ def get_users(full_data=False):
         users_list = sql_commands.get_users_list(full_data=True)
     else:
         users_list = sql_commands.get_users_list()
-    """
-    users_list = []
-    with open(USERS_FILE, 'r') as f:
-        for line in f:
-            row = line.strip().split(',', 5)
-            users_list.append({
-                'id': row[0],
-                'name': row[1],
-                'last_name': row[2],
-                'email': row[3],
-                'date': row[4],
-            })
-            if full_data:
-                users_list[-1]['password'] = row[5]
-    """
+
     return users_list
 
-"""
-def get_user_id():
-    
-    with open(ID_FILE, 'r') as f:
-        data = json.load(f)
-    return data['last_id'] + 1
-"""
 def search_user_by_id(id_number, users_list, valid_id=False):
     for user in users_list:
         if user['id'] == id_number or user['id'] == int(id_number):
@@ -117,7 +93,7 @@ def delete_user(user_id):
     return json.dumps(get_users())
 
 
-@app.route('/users/<user_id>', methods=['PUT'])
+@app.route('/modify/<user_id>', methods=['PUT'])
 def users_put(user_id):
     users = get_users(full_data=True)
     data_to_modify = json.loads(request.data)
@@ -141,18 +117,10 @@ def users_put(user_id):
             if data_to_modify[key] == user_modified['id']:
                 raise ServerError
             
-
     except ServerError:
         return json.dumps({'Error': 'Server problem'}), 500
 
     
-    
-    """
-    with open(USERS_FILE, 'w') as f:
-        for user in users:
-            f.write(','.join([str(user[k]) for k in USER_FIELDS]))
-            f.write('\n')
-    """
     return json.dumps(user_modified)  
 
 ##############################################################
@@ -168,13 +136,13 @@ def user_post():
         if valid_request(user):
             user['date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             user['password'] = hash_password(user['password'])
-            #save_user(user)
+            
             sql_response = sql_commands.post_new_user(user)
                             
             for value in sql_response[0]:
                 if isinstance(value, int):
                     user['id'] = value
-            app.logger.info('USERS RESULT:\n\n{}'.format(user))
+            #app.logger.info('USERS RESULT:\n\n{}'.format(user))
             return json.dumps(user)
 
     except MissingFieldError as e:
@@ -189,16 +157,6 @@ def valid_request(data):
     return True
 
 
-"""
-def save_user(data):
-    with open(USERS_FILE, 'a') as f:
-        f.write(','.join([str(data[k]) for k in USER_FIELDS]))
-        f.write('\n')
-
-    id_data = {'last_id': data['id']}
-    with open(ID_FILE, 'w') as f:
-        f.write(json.dumps(id_data))
-"""
 
 def hash_password(password):
     return hashlib.md5(password.encode()).hexdigest()
