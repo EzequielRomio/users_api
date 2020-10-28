@@ -1,5 +1,5 @@
 import sqlite3
-import logging
+
 
 
 def get_users(cursor, row):
@@ -62,6 +62,14 @@ def update_user_row(new_data, id_number):
 
     query_command = 'UPDATE users SET {} = "{}" WHERE id = {}'.format(row, value, id_number)
     
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute(query_command)
+
+    conn.commit()
+
+def delete_user(id_number):
+    query_command = 'DELETE FROM users WHERE id={}'.format(id_number)
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
     cursor.execute(query_command)

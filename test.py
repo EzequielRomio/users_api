@@ -157,6 +157,10 @@ def test_get_users_list():
     assert r.status_code == 200
     print('test passed')
 
+def test_delete_user():
+    r = requests.put('http://localhost:5001/delete/14')
+    print(r.json())
 
 
-test_put_ok()
+test_delete_user()
+#test_put_ok()
