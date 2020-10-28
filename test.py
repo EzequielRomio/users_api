@@ -167,5 +167,15 @@ def test_get_users_list():
 
 
 
+test_post()
+test_valid_post_mail()
+test_valid_post_name()
+test_get_ok()
+test_put_404()
+test_get_users_list()
+test_put_ok()
+test_put_password_ok()
+test_put_404()
 test_delete_user()
+
 #test_put_ok()
