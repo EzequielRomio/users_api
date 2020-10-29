@@ -4,7 +4,7 @@
 Installation:
  - Create a virtual environment
  - pip install -r requirements.txt
- - TO DO: script to create the database file
+ - Run 'create_data_base.py' script
  
 ## Run Test:
 ```
