@@ -86,13 +86,15 @@ def search_user_by_id(id_number, users_list, valid_id=False):
 ##########################################################
 
 
-#################### PUT-METHODS #########################
-@app.route('/delete/<user_id>', methods=['PUT'])
+
+@app.route('/users/<user_id>', methods=['DELETE'])
 def delete_user(user_id):
     sql_commands.delete_user(user_id)
     return json.dumps(get_users())
 
 
+
+#################### PUT-METHODS #########################
 @app.route('/modify/<user_id>', methods=['PUT'])
 def users_put(user_id):
     users = get_users(full_data=True)

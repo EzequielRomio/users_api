@@ -129,7 +129,7 @@ def test_put_ok():
 def test_delete_user():
     r_test = create_test_enviroment()
 
-    r = requests.put('http://localhost:5001/delete/{}'.format(r_test['id']))
+    r = requests.delete('http://localhost:5001/users/{}'.format(r_test['id']))
     
     assert r.status_code == 200
     assert r_test['id'] not in r.json()
