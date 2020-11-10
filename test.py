@@ -71,7 +71,7 @@ def test_valid_post_mail():
 def test_put_404():
     data = {'name': 'Viru'}
     
-    r = requests.put('http://localhost:5001/modify/0', data=json.dumps(data)) # user_id 0 not exist
+    r = requests.put('http://localhost:5001/users/0', data=json.dumps(data)) # user_id 0 not exist
     
     assert isinstance(r.json(), dict)
     assert r.status_code == 404
@@ -82,7 +82,7 @@ def test_put_password_ok():
     r_test = create_test_enviroment()
 
     data = {'password': 'waterdog'}
-    r = requests.put('http://localhost:5001/modify/{}'.format(r_test['id']), data=json.dumps(data))
+    r = requests.put('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps(data))
 
     response = r.json()
     assert r.status_code == 200
@@ -102,7 +102,7 @@ def test_put_ok():
     
     for k, v in data.items():
 
-        r = requests.put('http://localhost:5001/modify/{}'.format(r_test['id']), data=json.dumps({k: v}))
+        r = requests.put('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps({k: v}))
         if k == 'date':
             assert r.status_code == 400
             continue
