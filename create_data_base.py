@@ -1,18 +1,18 @@
 import sqlite3
 
+sql_script = 'sqls/' + '' # Complete with the file's name 
+
 conn = sqlite3.connect('users.db')
 
-query = """CREATE TABLE users (
-    id INTEGER PRIMARY KEY,
-    name TEXT,
-    last_name TEXT, 
-    email TEXT,
-    date TEXT,
-    password TEXT
-);"""
+with open(sql_script, 'r') as f:
+    query = ''
+    for line in f:
+        print(line)
+        query += line
+
 
 c = conn.cursor()
-c.executemany(query)
+c.execute(query)
 
 conn.commit()
 
