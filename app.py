@@ -36,8 +36,9 @@ logging.basicConfig(level=getattr(logging, LOG_LEVEL))
 
 app.logger.info('The API is running!')
 
-################# GET-METHODS ##################
+############################################# GET-METHODS ###########################################################
 
+####################### USERS ####################### 
 @app.route('/users', methods=['GET'])
 def users_get():
     #app.logger.debug(json.dumps(get_users()))
@@ -84,17 +85,32 @@ def search_user_by_id(id_number, users_list, valid_id=False):
     raise IdNotFoundError(id_number)
 
 ##########################################################
+##################### PRESCRIPTIONS ######################
 
 
-##################### DELETE-METHODS #######################
+
+
+
+################################################ DELETE-METHODS #####################################################
+
+######################## USERS ##########################
 @app.route('/users/<user_id>', methods=['DELETE'])
 def delete_user(user_id):
     sql_commands.delete_user(user_id)
     return json.dumps(get_users())
+#########################################################
+
+################## PRESCRIPTIONS ########################
+@app.route('/prescriptions/<prescript_id>', methods=['DELETE'])
+def delete_prescript(prescript_id):
+    sql_commands.delete_prescription(prescript_id)
+    #return json.dumps(get_users())
+#########################################################
 
 
+################################################### PUT-METHODS ####################################################
 
-#################### PUT-METHODS #########################
+####################### USERS ##########################
 @app.route('/users/<user_id>', methods=['PUT'])
 def users_put(user_id):
     users = get_users(full_data=True)
@@ -127,15 +143,18 @@ def users_put(user_id):
 
 ##############################################################
 
+####################### PRESCRIPTIONS ########################
 
-####################### POST-METHODS #########################
 
+###################################################### POST-METHODS #############################################################
+
+######################### USERS ##############################
 @app.route('/users', methods=['POST'])
 def user_post():
     print(request.data)
     user = json.loads(request.data)
     try:
-        if valid_request(user):
+        if valid_request(user, users=True):
             user['date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             user['password'] = hash_password(user['password'])
             
@@ -151,13 +170,43 @@ def user_post():
         app.logger.debug(e.send_error_message())
         return json.dumps({'Error': e.send_error_message()}), 400
 
-def valid_request(data):
-    for header in ('name', 'email'):
+######################################################
+
+################## PRESCRIPTIONS #####################
+@app.route('/prescriptions', methods=['POST'])
+def prescription_post():
+    prescription = json.loads(request.data)
+    try:
+        if valid_request(prescription, prescrip=True):
+            prescription['created_date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            sql_response = sql_commands.post_prescription(prescription)
+                            
+            for value in sql_response[0]:
+                if isinstance(value, int):
+                    prescription['id'] = value
+            #app.logger.info('USERS RESULT:\n\n{}'.format(user))
+            return json.dumps(prescription)
+
+    except MissingFieldError as e:
+        app.logger.debug(e.send_error_message())
+        return json.dumps({'Error': e.send_error_message()}), 400
+
+#######################################################################
+
+
+def valid_request(data, users=False, prescrip=False):
+    if users:
+        HEADERS = ('name', 'email')
+    elif prescrip:
+        HEADERS = ('user_id, prescription_date, od, oi')
+
+    for header in HEADERS:
         if not header in data.keys():
             app.logger.debug(header)
             raise MissingFieldError(header)
     return True
-
+        
 
 
 def hash_password(password):
