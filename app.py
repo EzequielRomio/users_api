@@ -154,7 +154,7 @@ def user_post():
     print(request.data)
     user = json.loads(request.data)
     try:
-        if valid_request(user, users=True):
+        if validate_user_body(user):
             user['date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             user['password'] = hash_password(user['password'])
             
@@ -177,7 +177,7 @@ def user_post():
 def prescription_post():
     prescription = json.loads(request.data)
     try:
-        if valid_request(prescription, prescrip=True):
+        if validate_prescription_body(prescription) and valid_id_number(prescription['user_id']): 
             prescription['created_date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
             sql_response = sql_commands.post_prescription(prescription)
@@ -192,18 +192,24 @@ def prescription_post():
         app.logger.debug(e.send_error_message())
         return json.dumps({'Error': e.send_error_message()}), 400
 
+    except IdNotFoundError as e:
+        app.logger.debug(e.send_error_message())
+        return json.dumps({'Error': e.send_error_message()}), 404
+
+
 #######################################################################
 
-
-def valid_request(data, users=False, prescrip=False):
-    if users:
-        HEADERS = ('name', 'email')
-    elif prescrip:
-        HEADERS = ('user_id, prescription_date, od, oi')
-
-    for header in HEADERS:
+def validate_user_body(data):
+    for header in ('name', 'email'):
         if not header in data.keys():
             app.logger.debug(header)
+            raise MissingFieldError(header)
+    return True
+
+def validate_prescription_body(data):
+    for header in ('user_id', 'prescription_date', 'od', 'oi'):
+        if not header in data.keys():
+            app.logger.info(header)
             raise MissingFieldError(header)
     return True
         
@@ -214,7 +220,7 @@ def hash_password(password):
 
 def valid_id_number(id_number):
     if not sql_commands.get_user_by_row('*', id_number):
-        return False
+        raise IdNotFoundError(id_number)
     else:
         return True
 

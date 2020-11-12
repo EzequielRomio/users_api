@@ -165,8 +165,63 @@ def test_get_users_list():
     assert r.status_code == 200
     print('test passed')
 
+def test_post_prescription():
+    user = create_test_enviroment()
+    data = {
+        'user_id': user['id'],
+        'prescription_date': '17-08-2008',
+        'od': 'ESF+2.00CIL-1.25*140',
+        'oi': 'ESF+3.00',
+        'addition': '2.25',
+        'notes': 'ametropia',
+        'doctor': 'Juan Abud'
+    }
+
+    r = requests.post('http://localhost:5001/prescriptions', data=json.dumps(data))
+    response = r.json()
+    print(response)
+    assert r.status_code == 200
+    assert 'id' in response 
+    print('test passed')
 
 
+
+def test_post_prescription_404():
+    data = {
+        'user_id': -1,
+        'prescription_date': '17-08-2008',
+        'od': 'ESF+2.00CIL-1.25*140',
+        'oi': 'ESF+3.00',
+        'addition': '2.25',
+        'notes': 'ametropía',
+        'doctor': 'Juan Abud'
+    }
+
+    r = requests.post('http://localhost:5001/prescriptions', data=json.dumps(data))
+    print(r.status_code)
+    
+    assert r.status_code == 404
+    print('test passed')
+
+test_post_prescription()
+test_post_prescription_404()
+
+"""
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    prescription_date TEXT NOT NULL,
+    created_date TEXT NOT NULL, 
+    od TEXT NOT NULL,
+    oi TEXT NOT NULL,
+    addition TEXT,
+    notes TEXT,
+    doctor TEXT   
+"""
+
+
+
+
+"""
 test_post()
 test_valid_post_mail()
 test_valid_post_name()
@@ -177,5 +232,5 @@ test_put_ok()
 test_put_password_ok()
 test_put_404()
 test_delete_user()
-
+"""
 #test_put_ok()
