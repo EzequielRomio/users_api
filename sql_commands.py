@@ -95,3 +95,81 @@ def post_new_user(user):
     
     return get_user_by_row('*', id_number[0][0])
  
+
+
+
+
+
+######################################################################
+###################### PRESCRIPTIONS TABLE ###########################
+
+"""
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL,
+    prescription_date TEXT NOT NULL,
+    created_date TEXT NOT NULL, 
+    od TEXT NOT NULL,
+    oi TEXT NOT NULL,
+    addition TEXT,
+    notes TEXT,
+    doctor TEXT   
+"""
+
+def post_prescription(data):
+    data = [(data['user_id'], data['prescription_date'], data['created_date'], data['od'], data['oi'], data['addition'], data['notes'], data['doctor'])]
+    query = 'INSERT INTO prescriptions (user_id, prescription_date, created_date, od, oi, addition, notes, doctor) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+
+    conn = sqlite3.connect('users.db')
+
+    c = conn.cursor()
+    c.executemany(query, data)
+        
+    conn.commit()
+
+    prescript_id = [n for n in (c.execute('SELECT MAX(id) FROM prescriptions'))] 
+    
+    return get_prescription(prescript_id[0][0])
+
+
+def get_prescription(prescript_id):
+    query_command = 'SELECT * FROM prescriptions WHERE id = {}'.format(prescript_id)
+
+    conn = sqlite3.connect('users.db')
+
+    cursor = conn.cursor()
+    query = cursor.execute(query_command)
+    conn.commit()
+    return query.fetchall()
+
+
+def get_prescription_row(prescript_id, row):
+    query_command = 'SELECT {} FROM prescriptions WHERE id = {}'.format(row, prescript_id)
+
+    conn = sqlite3.connect('users.db')
+
+    cursor = conn.cursor()
+    query = cursor.execute(query_command)
+    conn.commit()
+    return query.fetchall()
+
+def get_prescriptions_by_user(user_id):
+    query_command = 'SELECT * FROM prescriptions WHERE user_id = {}'.format(user_id)
+
+    conn = sqlite3.connect('users.db')
+
+    cursor = conn.cursor()
+    query = cursor.execute(query_command)
+    conn.commit()
+    return query.fetchall()
+
+
+def modify_prescription(prescript_id, new_data):
+    pass
+
+def delete_prescription(prescript_id):
+    query_command = 'DELETE FROM prescriptions WHERE id={}'.format(prescript_id)
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute(query_command)
+
+    conn.commit()

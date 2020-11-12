@@ -1,6 +1,6 @@
 import sqlite3
 
-sql_script = 'sqls/' + '' # Complete with the file's name 
+sql_script = 'sqls/' + '02_prescription_table.sql' # Complete with the file's name 
 
 conn = sqlite3.connect('users.db')
 
