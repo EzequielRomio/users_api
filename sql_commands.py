@@ -127,7 +127,7 @@ def post_prescription(data):
     conn.commit()
 
     prescript_id = [n for n in (c.execute('SELECT MAX(id) FROM prescriptions'))] 
-    
+
     return get_prescription(prescript_id[0][0])
 
 

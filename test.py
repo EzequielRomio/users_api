@@ -15,6 +15,22 @@ def create_test_enviroment():
     r_test = requests.post('http://localhost:5001/users', data=json.dumps(test_enviroment))
     return r_test.json()
 
+def create_test_enviroment_prescriptions():
+    user = create_test_enviroment()
+    data = {
+        'user_id': user['id'],
+        'prescription_date': '00-00-2000',
+        'od': 'GRADUACION OD',
+        'oi': 'GRADUACION OI',
+        'addition': '5.00',
+        'notes': 'ametropia',
+        'doctor': 'EZEQUIEL ROMIO'
+    }
+
+    r = requests.post('http://localhost:5001/prescriptions', data=json.dumps(data))
+
+    
+    return r.json()
 
 
 ######### TESTING POST ##########
@@ -180,8 +196,9 @@ def test_post_prescription():
     r = requests.post('http://localhost:5001/prescriptions', data=json.dumps(data))
     response = r.json()
     print(response)
+    print(response['id'])
     assert r.status_code == 200
-    assert 'id' in response 
+     
     print('test passed')
 
 
@@ -203,8 +220,33 @@ def test_post_prescription_404():
     assert r.status_code == 404
     print('test passed')
 
-test_post_prescription()
-test_post_prescription_404()
+def test_get_prescription():
+    prescript = create_test_enviroment_prescriptions()
+
+    r = requests.get('http://localhost:5001/prescriptions/{}'.format(prescript['id']))
+    response = r.json()
+    print(response)
+    assert r.status_code == 200
+    
+    
+    for k in response.keys():
+        assert prescript[k] == response[k] 
+    
+    print('test passed')
+
+def test_get_prescription_404():
+    r = requests.get('http://localhost:5001/prescriptions/-1')
+
+    assert r.status_code == 404
+
+    print('test_passed')
+
+
+test_get_prescription()
+test_get_prescription_404()
+
+#test_post_prescription()
+#test_post_prescription_404()
 
 """
     id INTEGER PRIMARY KEY,

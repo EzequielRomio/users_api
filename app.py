@@ -85,8 +85,35 @@ def search_user_by_id(id_number, users_list, valid_id=False):
     raise IdNotFoundError(id_number)
 
 ##########################################################
+
+
 ##################### PRESCRIPTIONS ######################
 
+@app.route('/prescriptions/<prescription_id>', methods=['GET'])
+def get_prescrition(prescription_id):
+    #users_list = get_users()
+    try:
+        prescription_result = sql_commands.get_prescription(prescription_id)
+
+        if not prescription_result:
+            raise IdNotFoundError(prescription_id)
+
+        prescription = {}
+        prescription['id'] = prescription_result[0][0]
+        prescription['user_id'] = prescription_result[0][1]
+        prescription['prescription_date'] = prescription_result[0][2]
+        prescription['created_date'] = prescription_result[0][3]
+        prescription['od'] = prescription_result[0][4]
+        prescription['oi'] = prescription_result[0][5]
+        prescription['addition'] = prescription_result[0][6]
+        prescription['notes'] = prescription_result[0][7]
+        prescription['doctor'] = prescription_result[0][8]
+
+        return json.dumps(prescription)
+    
+    
+    except IdNotFoundError as e:
+        return json.dumps({'Error': e.send_error_message()}), 404
 
 
 
@@ -181,10 +208,12 @@ def prescription_post():
             prescription['created_date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             
             sql_response = sql_commands.post_prescription(prescription)
-                            
+
+            id_got = False                
             for value in sql_response[0]:
-                if isinstance(value, int):
+                if not id_got:
                     prescription['id'] = value
+                    id_got = True
             #app.logger.info('USERS RESULT:\n\n{}'.format(user))
             return json.dumps(prescription)
 
