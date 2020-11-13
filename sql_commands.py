@@ -173,3 +173,4 @@ def delete_prescription(prescript_id):
     cursor.execute(query_command)
 
     conn.commit()
+    

@@ -128,10 +128,20 @@ def delete_user(user_id):
 #########################################################
 
 ################## PRESCRIPTIONS ########################
-@app.route('/prescriptions/<prescript_id>', methods=['DELETE'])
-def delete_prescript(prescript_id):
-    sql_commands.delete_prescription(prescript_id)
-    #return json.dumps(get_users())
+@app.route('/prescriptions/<prescription_id>', methods=['DELETE'])
+def delete_prescript(prescription_id):
+    try:
+        prescription = sql_commands.get_prescription(prescription_id)
+
+        if not prescription:
+            raise IdNotFoundError(prescription_id)
+        else:
+            sql_commands.delete_prescription(prescription_id)
+            return {}
+
+    except IdNotFoundError as e:
+        return json.dumps({'Error': e.send_error_message()}), 404
+
 #########################################################
 
 

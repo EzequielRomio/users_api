@@ -151,6 +151,7 @@ def test_delete_user():
     assert r_test['id'] not in r.json()
     print(r.json())
 
+    
 
 
 ######### TESTING GET ##########
@@ -242,8 +243,23 @@ def test_get_prescription_404():
     print('test_passed')
 
 
-test_get_prescription()
-test_get_prescription_404()
+def test_delete_prescription_and_delete_404():
+    prescript = create_test_enviroment_prescriptions()
+
+    r = requests.delete('http://localhost:5001/prescriptions/{}'.format(prescript['id']))
+    print(r.status_code)
+
+    assert r.status_code == 200
+
+    r = requests.delete('http://localhost:5001/prescriptions/{}'.format(prescript['id']))
+
+    assert r.status_code == 404
+
+    print('test_passed')
+
+test_delete_prescription_and_delete_404()
+#test_get_prescription()
+#test_get_prescription_404()
 
 #test_post_prescription()
 #test_post_prescription_404()
