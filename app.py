@@ -66,6 +66,23 @@ def user_get(user_id):
     except IdNotFoundError as e:
         return json.dumps({'Error': e.send_error_message()}), 404
 
+
+@app.route('/users/<user_id>/prescriptions', methods=['GET'])
+def get_user_prescriptions(user_id):
+    try:
+        if valid_id_number(user_id):
+            result = sql_commands.get_prescriptions_by_user(user_id)
+            #print(result)
+            return json.dumps({'results': result})
+
+    except IdNotFoundError as e:
+        return json.dumps({'Error': e.send_error_message()}), 404    
+
+
+
+
+
+
 def get_users(full_data=False):
     if full_data:
         users_list = sql_commands.get_users_list(full_data=True)
@@ -224,7 +241,7 @@ def prescription_post():
                 if not id_got:
                     prescription['id'] = value
                     id_got = True
-            #app.logger.info('USERS RESULT:\n\n{}'.format(user))
+            app.logger.debug('USERS RESULT:\n\n{}'.format(prescription))
             return json.dumps(prescription)
 
     except MissingFieldError as e:

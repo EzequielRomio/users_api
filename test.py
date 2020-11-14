@@ -257,7 +257,39 @@ def test_delete_prescription_and_delete_404():
 
     print('test_passed')
 
-test_delete_prescription_and_delete_404()
+
+def test_get_prescriptions_by_user():
+    user = create_test_enviroment()
+    
+    data = {
+        'user_id': user['id'],
+        'prescription_date': '27-09-88',
+        'od': 'GET USER PRESCRIPTIONS TEST',
+        'oi': 'GET USER PRESCRIPTIONS TEST',
+        'addition': '2.25',
+        'notes': 'ametropía',
+        'doctor': 'Juan Abud'
+    }
+
+    for _ in range(3):
+        r = requests.post('http://localhost:5001/prescriptions', data=json.dumps(data))        
+        data['prescription_date'] += 'Test'
+        print(r.status_code)
+        print(r.json())
+
+    r = requests.get('http://localhost:5001/users/{}/prescriptions'.format(user['id']))
+
+    response = r.json()
+
+    print(response)
+    assert r.status_code == 200
+
+    print('test_passed')
+
+
+test_get_prescriptions_by_user()
+
+#test_delete_prescription_and_delete_404()
 #test_get_prescription()
 #test_get_prescription_404()
 

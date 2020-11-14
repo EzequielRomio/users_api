@@ -163,6 +163,7 @@ def get_prescriptions_by_user(user_id):
     return query.fetchall()
 
 
+
 def modify_prescription(prescript_id, new_data):
     pass
 
@@ -173,4 +174,5 @@ def delete_prescription(prescript_id):
     cursor.execute(query_command)
 
     conn.commit()
+
     
