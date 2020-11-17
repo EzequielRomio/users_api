@@ -97,6 +97,20 @@ def post_new_user(user):
  
 
 
+def update_prescription(new_data, prescript_id):
+    data_str_format = ''
+
+    for k, v in new_data.items():
+        data_format += '{} = "{}", '.format(k, v)
+    data_str_format = data_str_format.strip(', ')
+
+    query = 'UPDATE users SET {} WHERE id = {}'.format(data_str_format, prescript_id)
+
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute(query)
+
+    conn.commit()
 
 
 
@@ -141,6 +155,16 @@ def get_prescription(prescript_id):
     conn.commit()
     return query.fetchall()
 
+def get_prescriptions_ids():
+    query = 'SELECT id FROM prescriptions'
+
+    conn = sqlite3.connect('users.db')
+
+    cursor = conn.cursor()
+    query = cursor.execute(query)
+    conn.commit()
+
+    return query.fetchall()
 
 def get_prescription_row(prescript_id, row):
     query_command = 'SELECT {} FROM prescriptions WHERE id = {}'.format(row, prescript_id)
@@ -163,9 +187,23 @@ def get_prescriptions_by_user(user_id):
     return query.fetchall()
 
 
-
 def modify_prescription(prescript_id, new_data):
-    pass
+
+    data_str_format = ''
+
+    for k, v in new_data.items():
+        data_str_format += '{} = "{}", '.format(k, v)
+    data_str_format = data_str_format.strip(', ')
+
+    query = 'UPDATE prescriptions SET {} WHERE id = {}'.format(data_str_format, prescript_id)
+
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute(query)
+
+    conn.commit()
+
+
 
 def delete_prescription(prescript_id):
     query_command = 'DELETE FROM prescriptions WHERE id={}'.format(prescript_id)

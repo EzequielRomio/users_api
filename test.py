@@ -286,8 +286,46 @@ def test_get_prescriptions_by_user():
 
     print('test_passed')
 
+def test_put_prescription():
+    prescript = create_test_enviroment_prescriptions()
+    print(prescript)
+    data = {
+        'od': 'od put ok',
+        'oi': 'oi put ok',
+        'addition': 'put ok',
+    }
 
-test_get_prescriptions_by_user()
+    r = requests.put('http://localhost:5001/prescriptions/{}'.format(prescript['id']), data=json.dumps(data))
+    response = r.json()
+    print(response)
+    assert r.status_code == 200
+    
+    print(type(response))
+    for k in data.keys():
+        print(k, ' tested')
+        assert data[k] == response[k] 
+        assert response[k] != prescript[k]
+
+    print('test passed')
+
+
+
+def test_put_prescript_400():
+    prescript = create_test_enviroment_prescriptions()
+
+    data = {'user_id': 4}
+
+    r = requests.put('http://localhost:5001/prescriptions/{}'.format(prescript['id']), data=json.dumps(data))
+    response = r.json()
+    print(response)
+    assert r.status_code == 400
+
+    print('test passed')
+
+
+test_put_prescript_400()
+
+#test_get_prescriptions_by_user()
 
 #test_delete_prescription_and_delete_404()
 #test_get_prescription()

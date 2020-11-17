@@ -107,7 +107,7 @@ def search_user_by_id(id_number, users_list, valid_id=False):
 ##################### PRESCRIPTIONS ######################
 
 @app.route('/prescriptions/<prescription_id>', methods=['GET'])
-def get_prescrition(prescription_id):
+def get_prescription(prescription_id):
     #users_list = get_users()
     try:
         prescription_result = sql_commands.get_prescription(prescription_id)
@@ -192,12 +192,33 @@ def users_put(user_id):
     except ServerError:
         return json.dumps({'Error': 'Server problem'}), 500
 
-    
+    app.logger.info(user_modified)
     return json.dumps(user_modified)  
 
 ##############################################################
 
 ####################### PRESCRIPTIONS ########################
+@app.route('/prescriptions/<prescription_id>', methods=['PUT'])
+def put_prescription(prescription_id):
+    data_to_modify = json.loads(request.data)
+    data_to_modify.pop('id', None)
+    data_to_modify.pop('created_date', None)
+
+    if not data_to_modify:
+        return json.dumps({'Error': 'ERROR 400 "NO DATA TO MODIFY"'}), 400
+
+    if 'user_id' in data_to_modify:
+        return json.dumps({'Error': 'ERROR 400 "CAN NOT MODIFICATE USER_ID, DELETE PRESCRIPTION AND CREATE A NEW ONE"'}), 400
+    
+
+    try:
+        #if validate_prescript_id(prescription_id):
+        sql_commands.modify_prescription(prescription_id, data_to_modify)
+        return get_prescription(prescription_id)
+
+    except IdNotFoundError as e:
+        return json.dumps({'Error': e.send_error_message()}), 404
+
 
 
 ###################################################### POST-METHODS #############################################################
@@ -269,6 +290,13 @@ def validate_prescription_body(data):
             raise MissingFieldError(header)
     return True
         
+def validate_prescript_id(prescript_id):
+    ids = [number for number in sql_commands.get_prescriptions_ids()]
+    app.logger.info(ids)
+    if not prescript_id in ids:
+        raise IdNotFoundError(prescript_id)
+    else:
+        return True
 
 
 def hash_password(password):
