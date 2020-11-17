@@ -55,12 +55,15 @@ def get_user_by_row(rows, id_number):
 
 
 
-def update_user_row(new_data, id_number):
-    for k, v in new_data.items():
-        row = k
-        value = v
+def update_user(new_data, id_number):
+    data_str_format = ''
 
-    query_command = 'UPDATE users SET {} = "{}" WHERE id = {}'.format(row, value, id_number)
+    for k, v in new_data.items():
+        data_str_format += '{} = "{}", '.format(k, v)
+    data_str_format = data_str_format.strip(', ')
+
+    query_command = 'UPDATE users SET {} WHERE id = {}'.format(data_str_format, id_number)
+
     
     conn = sqlite3.connect('users.db')
     cursor = conn.cursor()
@@ -97,20 +100,6 @@ def post_new_user(user):
  
 
 
-def update_prescription(new_data, prescript_id):
-    data_str_format = ''
-
-    for k, v in new_data.items():
-        data_format += '{} = "{}", '.format(k, v)
-    data_str_format = data_str_format.strip(', ')
-
-    query = 'UPDATE users SET {} WHERE id = {}'.format(data_str_format, prescript_id)
-
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
-    cursor.execute(query)
-
-    conn.commit()
 
 
 

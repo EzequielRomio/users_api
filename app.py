@@ -183,7 +183,7 @@ def users_put(user_id):
         return json.dumps({'Error': 'ERROR 400 "NO DATA TO MODIFY"'}), 400
     
     try:
-        sql_commands.update_user_row(data_to_modify, user_id)
+        sql_commands.update_user(data_to_modify, user_id)
 
         for key in data_to_modify.keys():
             if data_to_modify[key] == user_modified['id']:

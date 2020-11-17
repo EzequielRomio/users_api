@@ -322,8 +322,8 @@ def test_put_prescript_400():
 
     print('test passed')
 
-
-test_put_prescript_400()
+test_put_ok()
+#test_put_prescript_400()
 
 #test_get_prescriptions_by_user()
 
