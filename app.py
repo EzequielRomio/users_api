@@ -79,10 +79,6 @@ def get_user_prescriptions(user_id):
         return json.dumps({'Error': e.send_error_message()}), 404    
 
 
-
-
-
-
 def get_users(full_data=False):
     if full_data:
         users_list = sql_commands.get_users_list(full_data=True)
@@ -131,8 +127,6 @@ def get_prescription(prescription_id):
     
     except IdNotFoundError as e:
         return json.dumps({'Error': e.send_error_message()}), 404
-
-
 
 
 ################################################ DELETE-METHODS #####################################################
@@ -208,7 +202,7 @@ def put_prescription(prescription_id):
         return json.dumps({'Error': 'ERROR 400 "NO DATA TO MODIFY"'}), 400
 
     if 'user_id' in data_to_modify:
-        return json.dumps({'Error': 'ERROR 400 "CAN NOT MODIFICATE USER_ID, DELETE PRESCRIPTION AND CREATE A NEW ONE"'}), 400
+        return json.dumps({'Error': 'ERROR 400 "CANNOT MODIFY USER_ID, DELETE PRESCRIPTION AND CREATE A NEW ONE"'}), 400
     
 
     try:
@@ -277,17 +271,17 @@ def prescription_post():
 #######################################################################
 
 def validate_user_body(data):
-    for header in ('name', 'email'):
-        if not header in data.keys():
-            app.logger.debug(header)
-            raise MissingFieldError(header)
+    for field in ('name', 'email'):
+        if not field in data.keys():
+            app.logger.debug(field)
+            raise MissingFieldError(field)
     return True
 
 def validate_prescription_body(data):
-    for header in ('user_id', 'prescription_date', 'od', 'oi'):
-        if not header in data.keys():
-            app.logger.info(header)
-            raise MissingFieldError(header)
+    for field in ('user_id', 'prescription_date', 'od', 'oi'):
+        if not field in data.keys():
+            app.logger.info(field)
+            raise MissingFieldError(field)
     return True
         
 def validate_prescript_id(prescript_id):

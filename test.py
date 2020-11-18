@@ -4,7 +4,7 @@ import requests
 
 #r = requests.get('http://localhost:5000/users')
 
-def create_test_enviroment():
+def create_test_users():
     test_enviroment = {
         'name': 'TEST',
         'last_name': 'TEST_TEST',
@@ -15,8 +15,8 @@ def create_test_enviroment():
     r_test = requests.post('http://localhost:5001/users', data=json.dumps(test_enviroment))
     return r_test.json()
 
-def create_test_enviroment_prescriptions():
-    user = create_test_enviroment()
+def create_test_prescriptions():
+    user = create_test_users()
     data = {
         'user_id': user['id'],
         'prescription_date': '00-00-2000',
@@ -80,8 +80,6 @@ def test_valid_post_mail():
 
 
 
-
-
 ######### TESTING PUT ###########
 
 def test_put_404():
@@ -95,7 +93,7 @@ def test_put_404():
     print('test passed')
     
 def test_put_password_ok():
-    r_test = create_test_enviroment()
+    r_test = create_test_users()
 
     data = {'password': 'waterdog'}
     r = requests.put('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps(data))
@@ -107,7 +105,7 @@ def test_put_password_ok():
 
 def test_put_ok():
     
-    r_test = create_test_enviroment()
+    r_test = create_test_users()
     
     data = {
         'name': 'Camila', 
@@ -143,7 +141,7 @@ def test_put_ok():
     print('test passed')
 
 def test_delete_user():
-    r_test = create_test_enviroment()
+    r_test = create_test_users()
 
     r = requests.delete('http://localhost:5001/users/{}'.format(r_test['id']))
     
@@ -157,7 +155,7 @@ def test_delete_user():
 ######### TESTING GET ##########
 
 def test_get_ok():
-    r_test = create_test_enviroment()
+    r_test = create_test_users()
     r = requests.get('http://localhost:5001/users/{}'.format(r_test['id']))
     user = r.json()
     #assert user.get('id') == str(r_test['id'])
@@ -183,7 +181,7 @@ def test_get_users_list():
     print('test passed')
 
 def test_post_prescription():
-    user = create_test_enviroment()
+    user = create_test_users()
     data = {
         'user_id': user['id'],
         'prescription_date': '17-08-2008',
@@ -222,7 +220,7 @@ def test_post_prescription_404():
     print('test passed')
 
 def test_get_prescription():
-    prescript = create_test_enviroment_prescriptions()
+    prescript = create_test_prescriptions()
 
     r = requests.get('http://localhost:5001/prescriptions/{}'.format(prescript['id']))
     response = r.json()
@@ -244,7 +242,7 @@ def test_get_prescription_404():
 
 
 def test_delete_prescription_and_delete_404():
-    prescript = create_test_enviroment_prescriptions()
+    prescript = create_test_prescriptions()
 
     r = requests.delete('http://localhost:5001/prescriptions/{}'.format(prescript['id']))
     print(r.status_code)
@@ -259,7 +257,7 @@ def test_delete_prescription_and_delete_404():
 
 
 def test_get_prescriptions_by_user():
-    user = create_test_enviroment()
+    user = create_test_users()
     
     data = {
         'user_id': user['id'],
@@ -287,69 +285,49 @@ def test_get_prescriptions_by_user():
     print('test_passed')
 
 def test_put_prescription():
-    prescript = create_test_enviroment_prescriptions()
-    print(prescript)
+    prescription = create_test_prescriptions()
+    
     data = {
         'od': 'od put ok',
         'oi': 'oi put ok',
         'addition': 'put ok',
     }
 
-    r = requests.put('http://localhost:5001/prescriptions/{}'.format(prescript['id']), data=json.dumps(data))
+    r = requests.put('http://localhost:5001/prescriptions/{}'.format(prescription['id']), data=json.dumps(data))
     response = r.json()
     print(response)
     assert r.status_code == 200
     
-    print(type(response))
     for k in data.keys():
         print(k, ' tested')
         assert data[k] == response[k] 
-        assert response[k] != prescript[k]
+        assert response[k] != prescription[k]
 
     print('test passed')
 
 
 
 def test_put_prescript_400():
-    prescript = create_test_enviroment_prescriptions()
+    prescription = create_test_prescriptions()
 
     data = {'user_id': 4}
 
-    r = requests.put('http://localhost:5001/prescriptions/{}'.format(prescript['id']), data=json.dumps(data))
+    r = requests.put('http://localhost:5001/prescriptions/{}'.format(prescription['id']), data=json.dumps(data))
     response = r.json()
     print(response)
     assert r.status_code == 400
 
     print('test passed')
 
-test_put_ok()
-#test_put_prescript_400()
-
-#test_get_prescriptions_by_user()
-
-#test_delete_prescription_and_delete_404()
-#test_get_prescription()
-#test_get_prescription_404()
-
-#test_post_prescription()
-#test_post_prescription_404()
-
 """
-    id INTEGER PRIMARY KEY,
-    user_id INTEGER NOT NULL,
-    prescription_date TEXT NOT NULL,
-    created_date TEXT NOT NULL, 
-    od TEXT NOT NULL,
-    oi TEXT NOT NULL,
-    addition TEXT,
-    notes TEXT,
-    doctor TEXT   
-"""
+test_put_prescript_400()
+test_get_prescriptions_by_user()
+test_delete_prescription_and_delete_404()
+test_get_prescription()
+test_get_prescription_404()
+test_post_prescription()
+test_post_prescription_404()
 
-
-
-
-"""
 test_post()
 test_valid_post_mail()
 test_valid_post_name()
@@ -361,4 +339,3 @@ test_put_password_ok()
 test_put_404()
 test_delete_user()
 """
-#test_put_ok()
