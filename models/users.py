@@ -1,30 +1,48 @@
+#from main.sql_commands import sql_commands
 
-"""
-def get_users(full_data=False):
-    if full_data:
-        users_list = sql_commands.get_users_list(full_data=True)
+import json
+
+def get_user(user_id, fields=[]):
+    """Returns the required user, with the respective fields"""
+    query_result = get_user(user_id, fields)
+
+    user = {}
+    if not fields:
+        user['id'] = query_result[0][0]
+        user['name'] = query_result[0][1]
+        user['last_name'] = query_result[0][2]
+        user['email'] = query_result[0][3]
+        user['date'] = query_result[0][4]
     else:
-        users_list = sql_commands.get_users_list()
+        for ix, field in enumerate(fields):
+            user[field] = query_result[0][ix]
 
-    return users_list
+    return json.dumps(user)
 
 
-def user_get(user_id):
-    try:
-        user_data = sql_commands.get_user_by_row(rows='*', id_number=user_id)
+def get_users(full_data=False):
+    """Returns the list of users, if full_data adds password"""
+    query_result = get_users(full_data=full_data)
+    
+    fields = (
+        'id',
+        'name',
+        'last_name',
+        'email',
+        'date',
+        'password'
+    )
 
-        if not user_data:
-            raise IdNotFoundError(user_id)
-
+    users_list = []
+    for user_values in query_result:
         user = {}
-        user['id'] = user_data[0][0]
-        user['name'] = user_data[0][1]
-        user['last_name'] = user_data[0][2]
-        user['email'] = user_data[0][3]
-        user['date'] = user_data[0][4]
-
-        return json.dumps(user)
-        #return json.dumps(search_user_by_id(user_id, users_list))
-    except IdNotFoundError as e:
-        return json.dumps({'Error': e.send_error_message()}), 404
-"""
+        
+        if full_data:
+            user['password'] = user_values[5]
+        
+        for ix in range(user_values):
+            user[fields[ix]] = user_values[ix]
+        
+        users_list.append(user)
+    
+    return users_list

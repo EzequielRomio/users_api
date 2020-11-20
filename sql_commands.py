@@ -2,7 +2,7 @@ import sqlite3
 
 
 
-def get_users(cursor, row):
+def get_users_parse(cursor, row):
     users = {}
     for idx, col in enumerate(cursor.description):
         users[col[0]] = row[idx]
@@ -21,7 +21,26 @@ def set_str_format(rows):
     return rows_str_format
 
 
+def get_users(full_data=False):
 
+    if full_data:
+        query_command = 'SELECT * FROM users'
+    else:
+        query_command = 'SELECT id, name, last_name, email, date FROM users'
+
+    conn = sqlite3.connect('users.db')
+
+
+    cursor = conn.cursor()
+    cursor.execute(query_command)
+    #query = cursor.execute(query_command)
+    
+    conn.commit()
+    return cursor.fetchall
+
+
+
+# will delete
 def get_users_list(full_data=False):
 
     if full_data:
@@ -35,11 +54,27 @@ def get_users_list(full_data=False):
     cursor = conn.cursor()
     query = cursor.execute(query_command)
 
-    users_list = [get_users(cursor, user) for user in query]
+    users_list = [get_users_parse(cursor, user) for user in query]
     conn.commit()
     return users_list
 
 
+def get_user(user_id, fields=[]):
+    if fields:
+        fields_str = ', '.join(fields)
+    else:
+        fields_str = '*'
+    query = "SELECT {} FROM users WHERE id = {}".format(fields_str, user_id,)
+
+    conn = sqlite3.connect('users.db')
+
+    cursor = conn.cursor()
+    query = cursor.execute(query)
+    conn.commit()
+    return query.fetchall()
+
+
+# will delete 
 def get_user_by_row(rows, id_number):
     if rows != '*':
         rows = set_str_format(rows)
@@ -93,14 +128,11 @@ def post_new_user(user):
     conn = sqlite3.connect('users.db')
 
     c = conn.cursor()
-    c.executemany(query, [row])
-        
+
+    c.execute(query, row)   
     conn.commit()
 
-    id_number = [n for n in (c.execute('SELECT MAX(id) FROM users'))] 
-    
-    return get_user_by_row('*', id_number[0][0])
- 
+    return c.lastrowid
 
 
 
