@@ -189,6 +189,7 @@ def test_get_404():
 def test_get_users_list():
     r = requests.get('http://localhost:5001/users')
     assert isinstance(r.json(), list)
+    print(r.json())
     assert r.status_code == 200
     print('test passed')
 
@@ -345,11 +346,12 @@ test_valid_post_mail()
 test_valid_post_name()
 
 test_put_404()
-test_get_users_list()
+
 test_put_ok()
 test_put_password_ok()
 test_put_404()
 test_delete_user()
 """
-test_get_ok()
+#test_get_ok()
 #test_post_prescription()
+test_get_users_list()

@@ -60,7 +60,7 @@ def get_users(full_data=False):
         if full_data:
             user['password'] = user_values[5]
         
-        for ix in range(user_values):
+        for ix in range(len(user_values)):
             user[fields[ix]] = user_values[ix]
         
         users_list.append(user)
