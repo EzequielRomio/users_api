@@ -4,7 +4,7 @@ import logging
 from datetime import datetime
 import hashlib
 
-
+from models import users, prescriptions
 import sql_commands
 
 from flask import Flask, request
@@ -40,29 +40,25 @@ app.logger.info('The API is running!')
 
 ####################### USERS ####################### 
 @app.route('/users', methods=['GET'])
-def users_get():
-    #app.logger.debug(json.dumps(get_users()))
-    return json.dumps(get_users())
+def get_users(full_data=False):
+    if full_data:
+        return json.dumps(users.get_users(full_data=True))
+    else:
+        return json.dumps(users.get_users())
 
 
 @app.route('/users/<user_id>', methods=['GET'])
-def user_get(user_id):
-    #users_list = get_users()
+def get_user(user_id):
+    fields = json.loads(request.data)
+    app.logger.info(fields)
     try:
-        user_data = sql_commands.get_user_by_row(rows='*', id_number=user_id)
+        user_data = users.get_user(user_id, fields)
 
         if not user_data:
             raise IdNotFoundError(user_id)
 
-        user = {}
-        user['id'] = user_data[0][0]
-        user['name'] = user_data[0][1]
-        user['last_name'] = user_data[0][2]
-        user['email'] = user_data[0][3]
-        user['date'] = user_data[0][4]
+        return json.dumps(user_data)
 
-        return json.dumps(user)
-        #return json.dumps(search_user_by_id(user_id, users_list))
     except IdNotFoundError as e:
         return json.dumps({'Error': e.send_error_message()}), 404
 
@@ -79,13 +75,6 @@ def get_user_prescriptions(user_id):
         return json.dumps({'Error': e.send_error_message()}), 404    
 
 
-def get_users(full_data=False):
-    if full_data:
-        users_list = sql_commands.get_users_list(full_data=True)
-    else:
-        users_list = sql_commands.get_users_list()
-
-    return users_list
 
 def search_user_by_id(id_number, users_list, valid_id=False):
     for user in users_list:
@@ -227,11 +216,8 @@ def user_post():
             user['date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             user['password'] = hash_password(user['password'])
             
-            sql_response = sql_commands.post_new_user(user)
-                            
-            for value in sql_response[0]:
-                if isinstance(value, int):
-                    user['id'] = value
+            user['id'] = sql_commands.post_new_user(user)
+             
             #app.logger.info('USERS RESULT:\n\n{}'.format(user))
             return json.dumps(user)
 

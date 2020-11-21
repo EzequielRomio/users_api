@@ -1,10 +1,23 @@
-#from main.sql_commands import sql_commands
-
 import json
+import sqlite3
 
-def get_user(user_id, fields=[]):
+
+def get_user(user_id, fields={}):
     """Returns the required user, with the respective fields"""
-    query_result = get_user(user_id, fields)
+
+    fields = fields['fields']
+
+    if fields:
+        fields_str = ', '.join(fields)
+    else:
+        fields_str = '*'
+    
+    query = "SELECT {} FROM users WHERE id = {}".format(fields_str, user_id) 
+
+    query_result = sql_execute(query)
+
+    if not query_result:
+        return None
 
     user = {}
     if not fields:
@@ -17,12 +30,19 @@ def get_user(user_id, fields=[]):
         for ix, field in enumerate(fields):
             user[field] = query_result[0][ix]
 
-    return json.dumps(user)
+    return user
 
 
 def get_users(full_data=False):
     """Returns the list of users, if full_data adds password"""
-    query_result = get_users(full_data=full_data)
+
+    if full_data:
+        query = 'SELECT * FROM users'
+    else:
+        query = 'SELECT id, name, last_name, email, date FROM users'
+
+
+    query_result = sql_execute(query)
     
     fields = (
         'id',
@@ -46,3 +66,19 @@ def get_users(full_data=False):
         users_list.append(user)
     
     return users_list
+
+
+
+
+#################################################################
+#                                                               #
+##########################    SQL    ############################
+
+def sql_execute(query):
+    conn = sqlite3.connect('users.db')
+
+    cursor = conn.cursor()
+    cursor.execute(query)
+    
+    conn.commit()
+    return cursor.fetchall()

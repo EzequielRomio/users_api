@@ -1,5 +1,5 @@
 import sqlite3
-
+import os
 
 
 def get_users_parse(cursor, row):
@@ -111,8 +111,6 @@ def delete_user(id_number):
 
     conn.commit()
 
- 
-
 
 def post_new_user(user):
     row = (
@@ -125,6 +123,7 @@ def post_new_user(user):
     #data = [(x['name'], x['last_name'], x['email'], x['date'], x['password']) for x in data]
     query = 'INSERT INTO users (name, last_name, email, date, password) VALUES (?, ?, ?, ?, ?)'
 
+    #PATH = os.path.abspath('users.db')
     conn = sqlite3.connect('users.db')
 
     c = conn.cursor()
@@ -133,8 +132,6 @@ def post_new_user(user):
     conn.commit()
 
     return c.lastrowid
-
-
 
 
 
@@ -166,7 +163,8 @@ def post_prescription(data):
     )
     query = 'INSERT INTO prescriptions (user_id, prescription_date, created_date, od, oi, addition, notes, doctor) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
 
-    conn = sqlite3.connect('users.db')
+
+    conn = sqlite3.connect(os.path.abspath('users.db'))
 
     c = conn.cursor()
     c.executemany(query, [row])

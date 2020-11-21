@@ -156,7 +156,7 @@ def test_delete_user():
 
 def test_get_ok():
     r_test = create_test_users()
-    r = requests.get('http://localhost:5001/users/{}'.format(r_test['id']))
+    r = requests.get('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps({'fields': []}))
     user = r.json()
     #assert user.get('id') == str(r_test['id'])
     print(type(user))
@@ -166,6 +166,18 @@ def test_get_ok():
     assert r.status_code == 200
     print(user)
     print('test passed')
+
+    r = requests.get('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps({'fields': ['name', 'email']}))
+    user = r.json()
+
+    assert 'password' not in user
+    assert 'name' in user
+    assert r.status_code == 200
+
+    print(user)
+    print('test passed')
+
+
 
 def test_get_404():
     r = requests.get('http://localhost:5001/users/0')
@@ -323,7 +335,7 @@ def test_put_prescript_400():
 test_put_prescript_400()
 test_get_prescriptions_by_user()
 test_delete_prescription_and_delete_404()
-test_get_prescription()
+
 test_get_prescription_404()
 test_post_prescription()
 test_post_prescription_404()
@@ -331,7 +343,7 @@ test_post_prescription_404()
 test_post()
 test_valid_post_mail()
 test_valid_post_name()
-test_get_ok()
+
 test_put_404()
 test_get_users_list()
 test_put_ok()
@@ -339,3 +351,5 @@ test_put_password_ok()
 test_put_404()
 test_delete_user()
 """
+test_get_ok()
+#test_post_prescription()
