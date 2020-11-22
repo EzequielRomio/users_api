@@ -334,7 +334,6 @@ def test_put_prescript_400():
 
 """
 test_put_prescript_400()
-test_get_prescriptions_by_user()
 test_delete_prescription_and_delete_404()
 
 test_get_prescription_404()
@@ -354,4 +353,5 @@ test_delete_user()
 """
 #test_get_ok()
 #test_post_prescription()
-test_get_users_list()
+#test_get_users_list()
+test_get_prescriptions_by_user()

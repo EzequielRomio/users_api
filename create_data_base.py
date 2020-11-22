@@ -1,6 +1,6 @@
 import sqlite3
 
-
+#sql_script = 'sqls/' + '01_initial_db.sql'
 sql_script = 'sqls/' + '02_prescription_table.sql' # Complete with the file's name 
 
 """

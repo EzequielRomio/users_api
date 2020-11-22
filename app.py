@@ -63,29 +63,6 @@ def get_user(user_id):
         return json.dumps({'Error': e.send_error_message()}), 404
 
 
-@app.route('/users/<user_id>/prescriptions', methods=['GET'])
-def get_user_prescriptions(user_id):
-    try:
-        if valid_id_number(user_id):
-            result = sql_commands.get_prescriptions_by_user(user_id)
-            #print(result)
-            return json.dumps({'results': result})
-
-    except IdNotFoundError as e:
-        return json.dumps({'Error': e.send_error_message()}), 404    
-
-
-
-def search_user_by_id(id_number, users_list, valid_id=False):
-    for user in users_list:
-        if user['id'] == id_number or user['id'] == int(id_number):
-            if valid_id:
-                return True
-            else:
-                return user
-    
-    raise IdNotFoundError(id_number)
-
 ##########################################################
 
 
@@ -116,6 +93,18 @@ def get_prescription(prescription_id):
     
     except IdNotFoundError as e:
         return json.dumps({'Error': e.send_error_message()}), 404
+
+
+@app.route('/users/<user_id>/prescriptions', methods=['GET'])
+def get_user_prescriptions(user_id):
+    try:
+        if valid_id_number(user_id):
+            result = prescriptions.get_prescriptions_by_user(user_id)
+            
+            return json.dumps({'results': result})
+
+    except IdNotFoundError as e:
+        return json.dumps({'Error': e.send_error_message()}), 404    
 
 
 ################################################ DELETE-METHODS #####################################################
