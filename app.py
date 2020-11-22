@@ -89,6 +89,8 @@ def get_user_prescriptions(user_id):
             result = prescriptions.get_prescriptions_by_user(user_id)
             
             return json.dumps({'results': result})
+        else:
+            raise IdNotFoundError(user_id)
 
     except IdNotFoundError as e:
         return json.dumps({'Error': e.send_error_message()}), 404    
@@ -99,10 +101,16 @@ def get_user_prescriptions(user_id):
 ######################## USERS ##########################
 @app.route('/users/<user_id>', methods=['DELETE'])
 def delete_user(user_id):
+    try:
+        if not users.get_user(user_id):
+            raise IdNotFoundError(user_id)
+        
+        users.delete_user(user_id)
+        return {}
 
+    except IdNotFoundError as e:
+        return json.dumps({'Error': e.send_error_message()}), 404
 
-    sql_commands.delete_user(user_id)
-    return json.dumps(get_users())
 #########################################################
 
 ################## PRESCRIPTIONS ########################

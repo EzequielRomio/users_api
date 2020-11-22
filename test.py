@@ -142,12 +142,18 @@ def test_put_ok():
 
 def test_delete_user():
     r_test = create_test_users()
+    print(r_test['id'])
 
     r = requests.delete('http://localhost:5001/users/{}'.format(r_test['id']))
-    
+    print(r.status_code)    
     assert r.status_code == 200
-    assert r_test['id'] not in r.json()
-    print(r.json())
+
+    r = requests.get('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps({'fields': []}))
+
+    print(r.status_code)    
+    assert r.status_code == 404
+    
+    print('test passed')
 
     
 
@@ -349,11 +355,12 @@ test_put_404()
 test_put_ok()
 test_put_password_ok()
 test_put_404()
-test_delete_user()
+
 """
 #test_get_ok()
 #test_post_prescription()
 #test_get_users_list()
-test_get_prescriptions_by_user()
+#test_get_prescriptions_by_user()
 #test_get_prescription()
 #test_get_prescription_404()
+test_delete_user()

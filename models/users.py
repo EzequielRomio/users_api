@@ -5,14 +5,16 @@ import sqlite3
 def get_user(user_id, fields={}):
     """Returns the required user, with the respective fields"""
 
+    fields_str = '*'
+
     if fields:
-        fields = fields['fields']
-        fields_str = ', '.join(fields)
-    else:
-        fields_str = '*'
+        if fields['fields']:
+            fields = fields['fields']
+            fields_str = ', '.join(fields)
     
     query = "SELECT {} FROM users WHERE id = {}".format(fields_str, user_id) 
 
+    #query = "SELECT * FROM users WHERE id = 17"
     query_result = sql_execute(query)
 
     if not query_result:
@@ -67,6 +69,9 @@ def get_users(full_data=False):
     return users_list
 
 
+def delete_user(id_number):
+    query = 'DELETE FROM users WHERE id={}'.format(id_number)
+    sql_execute(query)
 
 
 #################################################################
@@ -77,6 +82,7 @@ def sql_execute(query):
     conn = sqlite3.connect('users.db')
 
     cursor = conn.cursor()
+
     cursor.execute(query)
     
     conn.commit()
