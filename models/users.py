@@ -5,9 +5,8 @@ import sqlite3
 def get_user(user_id, fields={}):
     """Returns the required user, with the respective fields"""
 
-    fields = fields['fields']
-
     if fields:
+        fields = fields['fields']
         fields_str = ', '.join(fields)
     else:
         fields_str = '*'

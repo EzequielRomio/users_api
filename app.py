@@ -85,7 +85,7 @@ def get_prescription(prescription_id):
 @app.route('/users/<user_id>/prescriptions', methods=['GET'])
 def get_user_prescriptions(user_id):
     try:
-        if valid_id_number(user_id):
+        if users.get_user(user_id):
             result = prescriptions.get_prescriptions_by_user(user_id)
             
             return json.dumps({'results': result})
@@ -99,6 +99,8 @@ def get_user_prescriptions(user_id):
 ######################## USERS ##########################
 @app.route('/users/<user_id>', methods=['DELETE'])
 def delete_user(user_id):
+
+
     sql_commands.delete_user(user_id)
     return json.dumps(get_users())
 #########################################################
