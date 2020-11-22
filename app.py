@@ -117,7 +117,6 @@ def delete_user(user_id):
 @app.route('/prescriptions/<prescription_id>', methods=['DELETE'])
 def delete_prescript(prescription_id):
     try:
-        #prescription = sql_commands.get_prescription(prescription_id)
         prescription = prescriptions.get_prescription(prescription_id)
         if not prescription:
             raise IdNotFoundError(prescription_id)
@@ -135,34 +134,23 @@ def delete_prescript(prescription_id):
 
 ####################### USERS ##########################
 @app.route('/users/<user_id>', methods=['PUT'])
-def users_put(user_id):
-    users = get_users(full_data=True)
-    data_to_modify = json.loads(request.data)
-    data_to_modify.pop('id', None)
-    data_to_modify.pop('date', None)
+def put_user(user_id):
     try:
-        user_modified = search_user_by_id(user_id, users)
-        if 'password' in data_to_modify:
-            data_to_modify['password'] = hash_password(data_to_modify['password'])
-            
+        if not users.get_user(user_id):
+            raise IdNotFoundError(user_id)
+        
+        data_to_modify = json.loads(request.data)
+        data_to_modify.pop('id', None)
+        data_to_modify.pop('date', None)
+
+        if not data_to_modify:
+            return json.dumps({'Error': 'ERROR 400 "NO DATA TO MODIFY"'}), 400 
+
+        users.modify_user(user_id, data_to_modify)
+        return {}
+
     except IdNotFoundError as e:
         return json.dumps({'Error': e.send_error_message()}), 404
-
-    if not data_to_modify:
-        return json.dumps({'Error': 'ERROR 400 "NO DATA TO MODIFY"'}), 400
-    
-    try:
-        sql_commands.update_user(data_to_modify, user_id)
-
-        for key in data_to_modify.keys():
-            if data_to_modify[key] == user_modified['id']:
-                raise ServerError
-            
-    except ServerError:
-        return json.dumps({'Error': 'Server problem'}), 500
-
-    app.logger.info(user_modified)
-    return json.dumps(user_modified)  
 
 ##############################################################
 

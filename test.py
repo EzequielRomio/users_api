@@ -85,22 +85,29 @@ def test_valid_post_mail():
 def test_user_put_404():
     data = {'name': 'Viru'}
     
-    r = requests.put('http://localhost:5001/users/0', data=json.dumps(data)) # user_id 0 not exist
-    
-    assert isinstance(r.json(), dict)
+    r = requests.put('http://localhost:5001/users/-1', data=json.dumps(data))
     assert r.status_code == 404
-    print(r.json())
+    assert isinstance(r.json(), dict)
     print('test passed')
+
+def test_user_put_400():
+    r_test = create_test_users()
+
+    r = requests.put('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps({'id': 18, 'date': '12345'}))
+    
+    assert r.status_code == 400
+    print('test_passed')
     
 def test_user_put_password_ok():
     r_test = create_test_users()
 
     data = {'password': 'waterdog'}
     r = requests.put('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps(data))
-
-    response = r.json()
     assert r.status_code == 200
-    assert response['password'] != 'waterdog'
+
+    r = requests.get('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps(['password']))
+    
+    assert r.json()['password'] != 'waterdog'
     print('test passed')
 
 def test_user_put_ok():
@@ -112,19 +119,23 @@ def test_user_put_ok():
         'last_name': 'Grosso', 
         'email': 'camilagros@etc.com', 
         'date': '2020-10-06 19:37:38',
-        'password': 'k-1000-A'}
+        'password': 'k-1000-A'
+    }
     
-    for k, v in data.items():
+    r = requests.put('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps(data))
 
-        r = requests.put('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps({k: v}))
-        if k == 'date':
-            assert r.status_code == 400
-            continue
-        assert r.status_code == 200
-        user = r.json()
-        print(user)
-        
+    assert r.status_code == 200
+
+    user = requests.get('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps([]))
+
+    user = user.json()
+
+    r = requests.get('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps(['password']))
+    r = r.json()
+    user['password'] = r['password']
+
     for key in data.keys():
+        print(data[key], user[key])
         if key == 'date':
             continue
         elif key == 'password':
@@ -370,4 +381,10 @@ test_put_404()
 #test_get_prescription()
 #test_get_prescription_404()
 #test_delete_user()
-test_delete_prescription()
+#test_delete_prescription()
+
+#test_user_put_ok()
+
+#test_user_put_password_ok()
+test_user_put_400()
+#test_user_put_404()

@@ -1,5 +1,7 @@
 import json
 import sqlite3
+from datetime import datetime
+import hashlib
 
 
 def get_user(user_id, fields=[]):
@@ -66,9 +68,25 @@ def get_users(full_data=False):
     return users_list
 
 
-def delete_user(id_number):
-    query = 'DELETE FROM users WHERE id={}'.format(id_number)
+def modify_user(user_id, data_to_modify):
+    if 'password' in data_to_modify:
+        data_to_modify['password'] = hash_password(data_to_modify['password'])
+
+    data_str_format = ', '.join(['{} = "{}"'.format(k, v) for k, v in data_to_modify.items()])
+
+    query = 'UPDATE users SET {} WHERE id = {}'.format(data_str_format, user_id)
+
     sql_execute(query)
+
+
+def delete_user(user_id):
+    query = 'DELETE FROM users WHERE id={}'.format(user_id)
+    sql_execute(query)
+
+
+
+def hash_password(password):
+    return hashlib.md5(password.encode()).hexdigest()
 
 
 #################################################################
