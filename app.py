@@ -50,7 +50,7 @@ def get_users(full_data=False):
 @app.route('/users/<user_id>', methods=['GET'])
 def get_user(user_id):
     fields = json.loads(request.data)
-    app.logger.info(fields)
+    
     try:
         user_data = users.get_user(user_id, fields)
 
@@ -70,27 +70,14 @@ def get_user(user_id):
 
 @app.route('/prescriptions/<prescription_id>', methods=['GET'])
 def get_prescription(prescription_id):
-    #users_list = get_users()
     try:
-        prescription_result = sql_commands.get_prescription(prescription_id)
+        prescription = prescriptions.get_prescription(prescription_id)
 
-        if not prescription_result:
+        if not prescription:
             raise IdNotFoundError(prescription_id)
 
-        prescription = {}
-        prescription['id'] = prescription_result[0][0]
-        prescription['user_id'] = prescription_result[0][1]
-        prescription['prescription_date'] = prescription_result[0][2]
-        prescription['created_date'] = prescription_result[0][3]
-        prescription['od'] = prescription_result[0][4]
-        prescription['oi'] = prescription_result[0][5]
-        prescription['addition'] = prescription_result[0][6]
-        prescription['notes'] = prescription_result[0][7]
-        prescription['doctor'] = prescription_result[0][8]
-
         return json.dumps(prescription)
-    
-    
+        
     except IdNotFoundError as e:
         return json.dumps({'Error': e.send_error_message()}), 404
 

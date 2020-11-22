@@ -234,7 +234,7 @@ def test_post_prescription_404():
 
 def test_get_prescription():
     prescript = create_test_prescriptions()
-
+    print(prescript['id'])
     r = requests.get('http://localhost:5001/prescriptions/{}'.format(prescript['id']))
     response = r.json()
     print(response)
@@ -354,4 +354,6 @@ test_delete_user()
 #test_get_ok()
 #test_post_prescription()
 #test_get_users_list()
-test_get_prescriptions_by_user()
+#test_get_prescriptions_by_user()
+test_get_prescription()
+test_get_prescription_404()
