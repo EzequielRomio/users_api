@@ -2,16 +2,13 @@ import json
 import sqlite3
 
 
-def get_user(user_id, fields={}):
+def get_user(user_id, fields=[]):
     """Returns the required user, with the respective fields"""
-
-    fields_str = '*'
-
     if fields:
-        if fields['fields']:
-            fields = fields['fields']
-            fields_str = ', '.join(fields)
-    
+        fields_str = ', '.join(fields)
+    else:
+        fields_str = '*'
+
     query = "SELECT {} FROM users WHERE id = {}".format(fields_str, user_id) 
 
     #query = "SELECT * FROM users WHERE id = 17"

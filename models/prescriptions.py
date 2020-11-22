@@ -31,6 +31,12 @@ def get_prescriptions_by_user(user_id):
     return sql_execute(query)
 
 
+def delete_prescription(prescription_id):
+    query = 'DELETE FROM prescriptions WHERE id={}'.format(prescription_id)
+    sql_execute(query)
+
+
+################### sql ####################
 def sql_execute(query):
     conn = sqlite3.connect('users.db')
 

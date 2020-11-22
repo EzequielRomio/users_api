@@ -117,8 +117,8 @@ def delete_user(user_id):
 @app.route('/prescriptions/<prescription_id>', methods=['DELETE'])
 def delete_prescript(prescription_id):
     try:
-        prescription = sql_commands.get_prescription(prescription_id)
-
+        #prescription = sql_commands.get_prescription(prescription_id)
+        prescription = prescriptions.get_prescription(prescription_id)
         if not prescription:
             raise IdNotFoundError(prescription_id)
         else:
