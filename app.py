@@ -1,15 +1,10 @@
 import os
 import json
 import logging
-from datetime import datetime
-import hashlib
 
 from models import users, prescriptions
-import sql_commands
 
 from flask import Flask, request
-
-USER_FIELDS = ('id','name', 'last_name', 'email', 'date', 'password')
 
 
 class ServerError(Exception):
@@ -25,7 +20,6 @@ class MissingFieldError(RequirementError):
 class IdNotFoundError(RequirementError):
     def send_error_message(self):
         return "404 < {} > ID NUMBER NOT FOUND".format(self.args[0])
-
 
 
 app = Flask('users_api')
@@ -50,7 +44,6 @@ def get_users(full_data=False):
 @app.route('/users/<user_id>', methods=['GET'])
 def get_user(user_id):
     fields = json.loads(request.data)
-    
     try:
         user_data = users.get_user(user_id, fields)
 
@@ -64,7 +57,6 @@ def get_user(user_id):
 
 
 ##########################################################
-
 
 ##################### PRESCRIPTIONS ######################
 
@@ -128,7 +120,6 @@ def delete_prescript(prescription_id):
         return json.dumps({'Error': e.send_error_message()}), 404
 
 #########################################################
-
 
 ################################################### PUT-METHODS ####################################################
 
@@ -209,29 +200,20 @@ def validate_user_body(data):
 def prescription_post():
     prescription = json.loads(request.data)
     try:
-        if validate_prescription_body(prescription) and valid_id_number(prescription['user_id']): 
-            prescription['created_date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            
-            sql_response = sql_commands.post_prescription(prescription)
+        if not users.get_user(prescription['user_id']):
+            raise IdNotFoundError(prescription['user_id'])
 
-            id_got = False                
-            for value in sql_response[0]:
-                if not id_got:
-                    prescription['id'] = value
-                    id_got = True
-            app.logger.debug('USERS RESULT:\n\n{}'.format(prescription))
-            return json.dumps(prescription)
-
-    except MissingFieldError as e:
-        app.logger.debug(e.send_error_message())
-        return json.dumps({'Error': e.send_error_message()}), 400
+        if validate_prescription_body(prescription):
+            prescription_id = prescriptions.post_prescription(prescription)
+            return json.dumps({'id': prescription_id})
 
     except IdNotFoundError as e:
         app.logger.debug(e.send_error_message())
         return json.dumps({'Error': e.send_error_message()}), 404
 
-
-#######################################################################
+    except MissingFieldError as e:
+        app.logger.debug(e.send_error_message())
+        return json.dumps({'Error': e.send_error_message()}), 400
 
 
 def validate_prescription_body(data):
@@ -240,22 +222,3 @@ def validate_prescription_body(data):
             app.logger.info(field)
             raise MissingFieldError(field)
     return True
-        
-def validate_prescript_id(prescript_id):
-    ids = [number for number in sql_commands.get_prescriptions_ids()]
-    app.logger.info(ids)
-    if not prescript_id in ids:
-        raise IdNotFoundError(prescript_id)
-    else:
-        return True
-
-
-def hash_password(password):
-    return hashlib.md5(password.encode()).hexdigest()
-
-def valid_id_number(id_number):
-    if not sql_commands.get_user_by_row('*', id_number):
-        raise IdNotFoundError(id_number)
-    else:
-        return True
-

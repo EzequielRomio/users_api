@@ -1,4 +1,24 @@
 import sqlite3
+from datetime import datetime
+
+def post_prescription(prescription):
+    prescription['created_date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    row = (
+        prescription['user_id'], 
+        prescription['prescription_date'], 
+        prescription['created_date'], 
+        prescription['od'], 
+        prescription['oi'], 
+        prescription['addition'], 
+        prescription['notes'], 
+        prescription['doctor']
+    )
+    query = 'INSERT INTO prescriptions (user_id, prescription_date, created_date, od, oi, addition, notes, doctor) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+
+    prescription_id = sql_execute_post(query, row)
+
+    return prescription_id
+
 
 def get_prescription(prescription_id):
     """Returns the required prescription"""
@@ -54,3 +74,14 @@ def sql_execute(query):
     query = cursor.execute(query)
     conn.commit()
     return query.fetchall()
+
+
+def sql_execute_post(query, row):
+    conn = sqlite3.connect('users.db')
+
+    c = conn.cursor()
+
+    c.execute(query, row)   
+    conn.commit()
+
+    return c.lastrowid

@@ -15,7 +15,6 @@ def post_user(user):
         user['password']
     )
     
-    
     query = 'INSERT INTO users (name, last_name, email, date, password) VALUES (?, ?, ?, ?, ?)'
 
     user_id = sql_execute_post(query, row)

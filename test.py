@@ -57,7 +57,7 @@ def test_post_user():
     print('test passed')
 
 
-def test_post_400_missing_field():
+def test_post_user_400_missing_field():
     #'name': 'pablo', FALTARÍA EL NOMBRE
     data = {
         'last_name': 'diaz_ogni',
@@ -213,12 +213,10 @@ def test_post_prescription():
 
     r = requests.post('http://localhost:5001/prescriptions', data=json.dumps(data))
     response = r.json()
-    print(response)
     print(response['id'])
     assert r.status_code == 200
-     
+    
     print('test passed')
-
 
 
 def test_post_prescription_404():
@@ -238,6 +236,25 @@ def test_post_prescription_404():
     assert r.status_code == 404
     print('test passed')
 
+
+def test_post_prescription_400():
+    user = create_test_users()
+    # od is missing
+    data = {
+        'user_id' : user['id'],
+        'prescription_date': '17-08-2008',
+        'oi': 'ESF+3.00',
+        'addition': '2.25',
+        'notes': 'ametropía',
+        'doctor': 'Juan Abud'
+    }
+    r = requests.post('http://localhost:5001/prescriptions', data=json.dumps(data))
+
+    print(r.json())
+    assert r.status_code == 400
+    print('test_passed')
+
+
 def test_get_prescription():
     prescript = create_test_prescriptions()
     print(prescript['id'])
@@ -246,11 +263,11 @@ def test_get_prescription():
     print(response)
     assert r.status_code == 200
     
-    
     for k in response.keys():
         assert prescript[k] == response[k] 
     
     print('test passed')
+
 
 def test_get_prescription_404():
     r = requests.get('http://localhost:5001/prescriptions/-1')
@@ -396,5 +413,9 @@ test_put_404()
 #test_put_prescription_ok()
 #test_put_prescription_400_modify_user()
 #test_put_prescription_400_empty_data()
-test_post_user()
-test_post_400_missing_field()
+#test_post_user()
+#test_post_400_missing_field()
+
+test_post_prescription()
+test_post_prescription_400()
+test_post_prescription_404()
