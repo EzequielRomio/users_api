@@ -182,22 +182,25 @@ def put_prescription(prescription_id):
 
 ######################### USERS ##############################
 @app.route('/users', methods=['POST'])
-def user_post():
-    print(request.data)
+def post_user():
     user = json.loads(request.data)
     try:
         if validate_user_body(user):
-            user['date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            user['password'] = hash_password(user['password'])
-            
-            user['id'] = sql_commands.post_new_user(user)
-             
-            #app.logger.info('USERS RESULT:\n\n{}'.format(user))
-            return json.dumps(user)
+            user_id = users.post_user(user)
+            return json.dumps({'id': user_id})
 
     except MissingFieldError as e:
         app.logger.debug(e.send_error_message())
         return json.dumps({'Error': e.send_error_message()}), 400
+
+
+def validate_user_body(data):
+    for field in ('name', 'email'):
+        if not field in data.keys():
+            app.logger.debug(field)
+            raise MissingFieldError(field)
+    return True
+
 
 ######################################################
 
@@ -230,12 +233,6 @@ def prescription_post():
 
 #######################################################################
 
-def validate_user_body(data):
-    for field in ('name', 'email'):
-        if not field in data.keys():
-            app.logger.debug(field)
-            raise MissingFieldError(field)
-    return True
 
 def validate_prescription_body(data):
     for field in ('user_id', 'prescription_date', 'od', 'oi'):

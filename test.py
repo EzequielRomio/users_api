@@ -42,19 +42,22 @@ def test_post_user():
         'email': 'pbldo@perro.com',
         'date': 'none',
         'password': 'ehehehehhe'
-    }#   llamo con la funcion post#   #arg1=host          arg2=contenido
-    r2 = requests.post('http://localhost:5001/users', data=json.dumps(data))
-    # estoy pasando un pedido con la data del dict 
-
-    #r2 guarda '<Response [200]>'
+    }
+    r = requests.post('http://localhost:5001/users', data=json.dumps(data))
     
-    response = r2.json()
-    assert r2.status_code == 200
+    response = r.json()
+    assert r.status_code == 200
     assert 'id' in response 
+    
+    r = requests.get('http://localhost:5001/users/{}'.format(response['id']), data=json.dumps(['password']))
+
+    response = r.json()
+
     assert response['password'] != data['password']
     print('test passed')
 
-def test_valid_post_name():
+
+def test_post_400_missing_field():
     #'name': 'pablo', FALTARÍA EL NOMBRE
     data = {
         'last_name': 'diaz_ogni',
@@ -62,22 +65,10 @@ def test_valid_post_name():
         'date': 'none',
         'password': 'ehehehehhe'
     }
-    r2 = requests.post('http://localhost:5001/users', data=json.dumps(data))
-    print(r2.json())
-    assert r2.status_code == 400
+    r = requests.post('http://localhost:5001/users', data=json.dumps(data))
+    print(r.json())
+    assert r.status_code == 400
     print('test passed')
-
-def test_valid_post_mail():
-    data = {
-        'name': 'pablito',
-        'last_name': 'diaz_ogni',
-        'date': 'none',
-        'password': 'ehehehehhe'
-    }
-    r2 = requests.post('http://localhost:5001/users', data=json.dumps(data))
-    assert r2.status_code == 400
-    print('test passed')
-
 
 
 ######### TESTING PUT ###########
@@ -369,7 +360,6 @@ def test_put_prescription_400_empty_data():
     print('test passed')
 
 
-
 """
 test_put_prescript_400()
 test_delete_prescription_and_delete_404()
@@ -405,4 +395,6 @@ test_put_404()
 #test_user_put_404()
 #test_put_prescription_ok()
 #test_put_prescription_400_modify_user()
-test_put_prescription_400_empty_data()
+#test_put_prescription_400_empty_data()
+test_post_user()
+test_post_400_missing_field()

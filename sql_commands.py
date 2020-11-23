@@ -120,10 +120,8 @@ def post_new_user(user):
         user['date'], 
         user['password']
     )
-    #data = [(x['name'], x['last_name'], x['email'], x['date'], x['password']) for x in data]
     query = 'INSERT INTO users (name, last_name, email, date, password) VALUES (?, ?, ?, ?, ?)'
 
-    #PATH = os.path.abspath('users.db')
     conn = sqlite3.connect('users.db')
 
     c = conn.cursor()

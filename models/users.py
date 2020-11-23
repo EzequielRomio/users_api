@@ -4,6 +4,25 @@ from datetime import datetime
 import hashlib
 
 
+def post_user(user):
+    user['date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    user['password'] = hash_password(user['password'])
+    row = (
+        user['name'], 
+        user['last_name'],
+        user['email'], 
+        user['date'],
+        user['password']
+    )
+    
+    
+    query = 'INSERT INTO users (name, last_name, email, date, password) VALUES (?, ?, ?, ?, ?)'
+
+    user_id = sql_execute_post(query, row)
+
+    return user_id
+
+
 def get_user(user_id, fields=[]):
     """Returns the required user, with the respective fields"""
     if fields:
@@ -102,3 +121,14 @@ def sql_execute(query):
     
     conn.commit()
     return cursor.fetchall()
+
+
+def sql_execute_post(query, row):
+    conn = sqlite3.connect('users.db')
+
+    c = conn.cursor()
+
+    c.execute(query, row)   
+    conn.commit()
+
+    return c.lastrowid
