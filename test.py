@@ -15,6 +15,7 @@ def create_test_users():
     r_test = requests.post('http://localhost:5001/users', data=json.dumps(test_enviroment))
     return r_test.json()
 
+
 def create_test_prescriptions():
     user = create_test_users()
     data = {
@@ -29,7 +30,6 @@ def create_test_prescriptions():
 
     r = requests.post('http://localhost:5001/prescriptions', data=json.dumps(data))
 
-    
     return r.json()
 
 
@@ -73,34 +73,6 @@ def test_post_user_400_missing_field():
 
 ######### TESTING PUT ###########
 
-def test_user_put_404():
-    data = {'name': 'Viru'}
-    
-    r = requests.put('http://localhost:5001/users/-1', data=json.dumps(data))
-    assert r.status_code == 404
-    assert isinstance(r.json(), dict)
-    print('test passed')
-
-def test_user_put_400():
-    r_test = create_test_users()
-
-    r = requests.put('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps({'id': 18, 'date': '12345'}))
-    
-    assert r.status_code == 400
-    print('test_passed')
-    
-def test_user_put_password_ok():
-    r_test = create_test_users()
-
-    data = {'password': 'waterdog'}
-    r = requests.put('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps(data))
-    assert r.status_code == 200
-
-    r = requests.get('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps(['password']))
-    
-    assert r.json()['password'] != 'waterdog'
-    print('test passed')
-
 def test_user_put_ok():
     
     r_test = create_test_users()
@@ -139,8 +111,39 @@ def test_user_put_ok():
         if key not in data:
             assert user[key] == r_test[key]    
     
-     
     print('test passed')
+
+
+def test_user_put_404():
+    data = {'name': 'Viru'}
+    
+    r = requests.put('http://localhost:5001/users/-1', data=json.dumps(data))
+    assert r.status_code == 404
+    assert isinstance(r.json(), dict)
+    print('test passed')
+
+
+def test_user_put_400():
+    r_test = create_test_users()
+
+    r = requests.put('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps({'id': 18, 'date': '12345'}))
+    
+    assert r.status_code == 400
+    print('test_passed')
+
+
+def test_user_put_password_ok():
+    r_test = create_test_users()
+
+    data = {'password': 'waterdog'}
+    r = requests.put('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps(data))
+    assert r.status_code == 200
+
+    r = requests.get('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps(['password']))
+    
+    assert r.json()['password'] != 'waterdog'
+    print('test passed')
+
 
 def test_delete_user():
     r_test = create_test_users()
@@ -164,8 +167,6 @@ def test_user_get_ok():
     r_test = create_test_users()
     r = requests.get('http://localhost:5001/users/{}'.format(r_test['id']), data=json.dumps([]))
     user = r.json()
-    #assert user.get('id') == str(r_test['id'])
-    print(type(user))
     print(user)
     assert 'date' in user
     assert isinstance(user, dict)
@@ -184,7 +185,6 @@ def test_user_get_ok():
     print('test passed')
 
 
-
 def test_get_404():
     r = requests.get('http://localhost:5001/users/0')
     print(r.json())
@@ -192,12 +192,14 @@ def test_get_404():
     print(r.json())
     print('test passed')
 
+
 def test_get_users_list():
     r = requests.get('http://localhost:5001/users')
     assert isinstance(r.json(), list)
     print(r.json())
     assert r.status_code == 200
     print('test passed')
+
 
 def test_post_prescription():
     user = create_test_users()
@@ -328,6 +330,7 @@ def test_get_prescriptions_by_user():
 
     print('test_passed')
 
+
 def test_put_prescription_ok():
     prescription = create_test_prescriptions()
     
@@ -350,7 +353,6 @@ def test_put_prescription_ok():
         assert prescription_updated[k] != prescription[k]
 
     print('test passed')
-
 
 
 def test_put_prescription_400_modify_user():
@@ -376,46 +378,3 @@ def test_put_prescription_400_empty_data():
 
     print('test passed')
 
-
-"""
-test_put_prescript_400()
-test_delete_prescription_and_delete_404()
-
-test_get_prescription_404()
-test_post_prescription()
-test_post_prescription_404()
-
-test_post()
-test_valid_post_mail()
-test_valid_post_name()
-
-test_put_404()
-
-test_put_ok()
-test_put_password_ok()
-test_put_404()
-
-"""
-#test_user_get_ok()
-#test_post_prescription()
-#test_get_users_list()
-#test_get_prescriptions_by_user()
-#test_get_prescription()
-#test_get_prescription_404()
-#test_delete_user()
-#test_delete_prescription()
-
-#test_user_put_ok()
-
-#test_user_put_password_ok()
-#test_user_put_400()
-#test_user_put_404()
-#test_put_prescription_ok()
-#test_put_prescription_400_modify_user()
-#test_put_prescription_400_empty_data()
-#test_post_user()
-#test_post_400_missing_field()
-
-test_post_prescription()
-test_post_prescription_400()
-test_post_prescription_404()

@@ -1,6 +1,7 @@
 import sqlite3
 from datetime import datetime
 
+
 def post_prescription(prescription):
     prescription['created_date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     row = (
@@ -58,7 +59,6 @@ def modify_prescription(prescription_id, data_to_modify):
     query = 'UPDATE prescriptions SET {} WHERE id = {}'.format(data_str_format, prescription_id)
 
     sql_execute(query)
-
 
 
 def delete_prescription(prescription_id):
