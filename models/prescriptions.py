@@ -31,6 +31,16 @@ def get_prescriptions_by_user(user_id):
     return sql_execute(query)
 
 
+def modify_prescription(prescription_id, data_to_modify):
+
+    data_str_format = ', '.join(['{} = "{}"'.format(k, v) for k, v in data_to_modify.items()])
+
+    query = 'UPDATE prescriptions SET {} WHERE id = {}'.format(data_str_format, prescription_id)
+
+    sql_execute(query)
+
+
+
 def delete_prescription(prescription_id):
     query = 'DELETE FROM prescriptions WHERE id={}'.format(prescription_id)
     sql_execute(query)

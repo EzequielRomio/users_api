@@ -320,7 +320,7 @@ def test_get_prescriptions_by_user():
 
     print('test_passed')
 
-def test_put_prescription():
+def test_put_prescription_ok():
     prescription = create_test_prescriptions()
     
     data = {
@@ -330,20 +330,22 @@ def test_put_prescription():
     }
 
     r = requests.put('http://localhost:5001/prescriptions/{}'.format(prescription['id']), data=json.dumps(data))
-    response = r.json()
-    print(response)
     assert r.status_code == 200
+
+    r = requests.get('http://localhost:5001/prescriptions/{}'.format(prescription['id']))   
     
+    prescription_updated = r.json()
+
     for k in data.keys():
         print(k, ' tested')
-        assert data[k] == response[k] 
-        assert response[k] != prescription[k]
+        assert data[k] == prescription_updated[k] 
+        assert prescription_updated[k] != prescription[k]
 
     print('test passed')
 
 
 
-def test_put_prescript_400():
+def test_put_prescription_400_modify_user():
     prescription = create_test_prescriptions()
 
     data = {'user_id': 4}
@@ -354,6 +356,19 @@ def test_put_prescript_400():
     assert r.status_code == 400
 
     print('test passed')
+
+
+def test_put_prescription_400_empty_data():
+    prescription = create_test_prescriptions()
+
+    r = requests.put('http://localhost:5001/prescriptions/{}'.format(prescription['id']), data=json.dumps({}))
+    response = r.json()
+    print(response)
+    assert r.status_code == 400
+
+    print('test passed')
+
+
 
 """
 test_put_prescript_400()
@@ -386,5 +401,8 @@ test_put_404()
 #test_user_put_ok()
 
 #test_user_put_password_ok()
-test_user_put_400()
+#test_user_put_400()
 #test_user_put_404()
+#test_put_prescription_ok()
+#test_put_prescription_400_modify_user()
+test_put_prescription_400_empty_data()

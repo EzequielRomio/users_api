@@ -157,25 +157,25 @@ def put_user(user_id):
 ####################### PRESCRIPTIONS ########################
 @app.route('/prescriptions/<prescription_id>', methods=['PUT'])
 def put_prescription(prescription_id):
-    data_to_modify = json.loads(request.data)
-    data_to_modify.pop('id', None)
-    data_to_modify.pop('created_date', None)
-
-    if not data_to_modify:
-        return json.dumps({'Error': 'ERROR 400 "NO DATA TO MODIFY"'}), 400
-
-    if 'user_id' in data_to_modify:
-        return json.dumps({'Error': 'ERROR 400 "CANNOT MODIFY USER_ID, DELETE PRESCRIPTION AND CREATE A NEW ONE"'}), 400
-    
-
     try:
-        #if validate_prescript_id(prescription_id):
-        sql_commands.modify_prescription(prescription_id, data_to_modify)
-        return get_prescription(prescription_id)
+        if not prescriptions.get_prescription(prescription_id):
+            raise IdNotFoundError(prescription_id)
+
+        data_to_modify = json.loads(request.data)
+        data_to_modify.pop('id', None)
+        data_to_modify.pop('created_date', None)
+
+        if not data_to_modify:
+            return json.dumps({'Error': 'ERROR 400 "NO DATA TO MODIFY"'}), 400
+
+        if 'user_id' in data_to_modify:
+            return json.dumps({'Error': 'ERROR 400 "CANNOT MODIFY USER_ID, DELETE PRESCRIPTION AND CREATE A NEW ONE"'}), 400
+
+        prescriptions.modify_prescription(prescription_id, data_to_modify)
+        return {}    
 
     except IdNotFoundError as e:
         return json.dumps({'Error': e.send_error_message()}), 404
-
 
 
 ###################################################### POST-METHODS #############################################################
