@@ -2,6 +2,7 @@ import sqlite3
 from datetime import datetime
 import hashlib
 
+import sql_commands
 
 def post_user(user):
     user['date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -16,7 +17,7 @@ def post_user(user):
     
     query = 'INSERT INTO users (name, last_name, email, date, password) VALUES (?, ?, ?, ?, ?)'
 
-    user_id = sql_execute_post(query, row)
+    user_id = sql_commands.sql_execute_post(query, row)
 
     return user_id
 
@@ -30,23 +31,12 @@ def get_user(user_id, fields=[]):
 
     query = "SELECT {} FROM users WHERE id = {}".format(fields_str, user_id) 
 
-    #query = "SELECT * FROM users WHERE id = 17"
-    query_result = sql_execute(query)
+    query_result = sql_commands.sql_execute_get_list(query)
 
     if not query_result:
         return None
 
-    user = {}
-    if not fields:
-        user['id'] = query_result[0][0]
-        user['name'] = query_result[0][1]
-        user['last_name'] = query_result[0][2]
-        user['email'] = query_result[0][3]
-        user['date'] = query_result[0][4]
-    else:
-        for ix, field in enumerate(fields):
-            user[field] = query_result[0][ix]
-
+    user = query_result[0] # is a list with only one element; a dict with the requiered user 
     return user
 
 
@@ -58,31 +48,9 @@ def get_users(full_data=False):
     else:
         query = 'SELECT id, name, last_name, email, date FROM users'
 
+    query_result = sql_commands.sql_execute_get_list(query)
 
-    query_result = sql_execute(query)
-    
-    fields = (
-        'id',
-        'name',
-        'last_name',
-        'email',
-        'date',
-        'password'
-    )
-
-    users_list = []
-    for user_values in query_result:
-        user = {}
-        
-        if full_data:
-            user['password'] = user_values[5]
-        
-        for ix in range(len(user_values)):
-            user[fields[ix]] = user_values[ix]
-        
-        users_list.append(user)
-    
-    return users_list
+    return query_result
 
 
 def modify_user(user_id, data_to_modify):
@@ -93,39 +61,14 @@ def modify_user(user_id, data_to_modify):
 
     query = 'UPDATE users SET {} WHERE id = {}'.format(data_str_format, user_id)
 
-    sql_execute(query)
+    sql_commands.sql_execute(query)
 
 
 def delete_user(user_id):
     query = 'DELETE FROM users WHERE id={}'.format(user_id)
-    sql_execute(query)
+    sql_commands.sql_execute(query)
 
 
 def hash_password(password):
     return hashlib.md5(password.encode()).hexdigest()
 
-
-#################################################################
-#                                                               #
-##########################    SQL    ############################
-
-def sql_execute(query):
-    conn = sqlite3.connect('users.db')
-
-    cursor = conn.cursor()
-
-    cursor.execute(query)
-    
-    conn.commit()
-    return cursor.fetchall()
-
-
-def sql_execute_post(query, row):
-    conn = sqlite3.connect('users.db')
-
-    c = conn.cursor()
-
-    c.execute(query, row)   
-    conn.commit()
-
-    return c.lastrowid

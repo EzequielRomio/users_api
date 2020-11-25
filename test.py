@@ -378,3 +378,7 @@ def test_put_prescription_400_empty_data():
 
     print('test passed')
 
+test_user_get_ok()
+test_get_users_list()
+test_get_prescription()
+test_get_prescriptions_by_user()

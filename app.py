@@ -2,9 +2,9 @@ import os
 import json
 import logging
 
-from models import users, prescriptions
-
 from flask import Flask, request
+
+from models import users, prescriptions
 
 
 class ServerError(Exception):
@@ -35,10 +35,7 @@ app.logger.info('The API is running!')
 ####################### USERS ####################### 
 @app.route('/users', methods=['GET'])
 def get_users(full_data=False):
-    if full_data:
-        return json.dumps(users.get_users(full_data=True))
-    else:
-        return json.dumps(users.get_users())
+    return json.dumps(users.get_users(full_data=full_data))
 
 
 @app.route('/users/<user_id>', methods=['GET'])
@@ -80,7 +77,7 @@ def get_user_prescriptions(user_id):
         if users.get_user(user_id):
             result = prescriptions.get_prescriptions_by_user(user_id)
             
-            return json.dumps({'results': result})
+            return json.dumps(result)
         else:
             raise IdNotFoundError(user_id)
 
@@ -113,7 +110,7 @@ def delete_prescript(prescription_id):
         if not prescription:
             raise IdNotFoundError(prescription_id)
         else:
-            sql_commands.delete_prescription(prescription_id)
+            prescriptions.delete_prescription(prescription_id)
             return {}
 
     except IdNotFoundError as e:
@@ -200,6 +197,9 @@ def validate_user_body(data):
 def prescription_post():
     prescription = json.loads(request.data)
     try:
+        if 'user_id' not in prescription:
+            raise MissingFieldError('user_id')
+        
         if not users.get_user(prescription['user_id']):
             raise IdNotFoundError(prescription['user_id'])
 
