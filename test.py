@@ -29,8 +29,9 @@ def create_test_prescriptions():
     }
 
     r = requests.post('http://localhost:5001/prescriptions', data=json.dumps(data))
-
-    return r.json()
+    prescription_id = r.json()
+    data['id'] = prescription_id['id']
+    return data
 
 
 ######### TESTING POST ##########
@@ -258,15 +259,15 @@ def test_post_prescription_400():
 
 
 def test_get_prescription():
-    prescript = create_test_prescriptions()
-    print(prescript['id'])
-    r = requests.get('http://localhost:5001/prescriptions/{}'.format(prescript['id']))
+    prescription = create_test_prescriptions()
+    print(prescription['id'])
+    r = requests.get('http://localhost:5001/prescriptions/{}'.format(prescription['id']))
     response = r.json()
     print(response)
     assert r.status_code == 200
     
-    for k in response.keys():
-        assert prescript[k] == response[k] 
+    for k in prescription.keys():
+        assert prescription[k] == response[k] 
     
     print('test passed')
 
@@ -378,7 +379,10 @@ def test_put_prescription_400_empty_data():
 
     print('test passed')
 
-test_user_get_ok()
-test_get_users_list()
+
 test_get_prescription()
 test_get_prescriptions_by_user()
+
+"""
+TODO - update prescriptions test assertions
+"""

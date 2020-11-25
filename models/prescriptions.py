@@ -1,7 +1,7 @@
 import sqlite3
 from datetime import datetime
 
-import sql_commands
+from models import sql_commands
 
 def post_prescription(prescription):
     prescription['created_date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

@@ -2,7 +2,7 @@ import sqlite3
 from datetime import datetime
 import hashlib
 
-import sql_commands
+from models import sql_commands
 
 def post_user(user):
     user['date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
