@@ -72,3 +72,6 @@ def delete_user(user_id):
 def hash_password(password):
     return hashlib.md5(password.encode()).hexdigest()
 
+"""
+TODO - get_user, and get_users in 1 function 
+"""

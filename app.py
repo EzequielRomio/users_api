@@ -197,13 +197,10 @@ def validate_user_body(data):
 def prescription_post():
     prescription = json.loads(request.data)
     try:
-        if 'user_id' not in prescription:
-            raise MissingFieldError('user_id')
-        
-        if not users.get_user(prescription['user_id']):
-            raise IdNotFoundError(prescription['user_id'])
-
         if validate_prescription_body(prescription):
+            if not users.get_user(prescription['user_id']):
+                raise IdNotFoundError(prescription['user_id'])
+
             prescription_id = prescriptions.post_prescription(prescription)
             return json.dumps({'id': prescription_id})
 
@@ -222,3 +219,10 @@ def validate_prescription_body(data):
             app.logger.info(field)
             raise MissingFieldError(field)
     return True
+
+
+"""
+TODO: 
+ - delete_user must make a change on that user's prescriptions
+ - validating bodies must check if fields to POST or PUT have values (and the sql obligatory fields)
+""" 

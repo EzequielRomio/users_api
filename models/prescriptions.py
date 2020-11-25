@@ -56,3 +56,7 @@ def delete_prescription(prescription_id):
     query = 'DELETE FROM prescriptions WHERE id={}'.format(prescription_id)
     sql_commands.sql_execute(query)
 
+
+"""
+TODO - give the option to select fields
+"""
