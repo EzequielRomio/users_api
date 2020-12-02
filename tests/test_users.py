@@ -28,7 +28,6 @@ def user(client):
     response = client.post('/users', data=json.dumps(data))
     user = json.loads(response.data)
     user.update(data)
-    print(user)
 
     yield user
 
