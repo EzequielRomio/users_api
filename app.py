@@ -1,15 +1,10 @@
 import os
 import json
 import logging
-from datetime import datetime
-import hashlib
-
-
-import sql_commands
 
 from flask import Flask, request
 
-USER_FIELDS = ('id','name', 'last_name', 'email', 'date', 'password')
+from models import users, prescriptions
 
 
 class ServerError(Exception):
@@ -27,7 +22,6 @@ class IdNotFoundError(RequirementError):
         return "404 < {} > ID NUMBER NOT FOUND".format(self.args[0])
 
 
-
 app = Flask('users_api')
 
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
@@ -36,136 +30,199 @@ logging.basicConfig(level=getattr(logging, LOG_LEVEL))
 
 app.logger.info('The API is running!')
 
-################# GET-METHODS ##################
+############################################# GET-METHODS ###########################################################
 
+####################### USERS ####################### 
 @app.route('/users', methods=['GET'])
-def users_get():
-    #app.logger.debug(json.dumps(get_users()))
-    return json.dumps(get_users())
+def get_users(full_data=False):
+    return json.dumps(users.get_users(full_data=full_data))
 
 
 @app.route('/users/<user_id>', methods=['GET'])
-def user_get(user_id):
-    #users_list = get_users()
+def get_user(user_id):
+    fields = json.loads(request.data)
     try:
-        user_data = sql_commands.get_user_by_row(rows='*', id_number=user_id)
+        user_data = users.get_user(user_id, fields)
 
         if not user_data:
             raise IdNotFoundError(user_id)
 
-        user = {}
-        user['id'] = user_data[0][0]
-        user['name'] = user_data[0][1]
-        user['last_name'] = user_data[0][2]
-        user['email'] = user_data[0][3]
-        user['date'] = user_data[0][4]
+        return json.dumps(user_data)
 
-        return json.dumps(user)
-        #return json.dumps(search_user_by_id(user_id, users_list))
     except IdNotFoundError as e:
         return json.dumps({'Error': e.send_error_message()}), 404
 
-def get_users(full_data=False):
-    if full_data:
-        users_list = sql_commands.get_users_list(full_data=True)
-    else:
-        users_list = sql_commands.get_users_list()
-
-    return users_list
-
-def search_user_by_id(id_number, users_list, valid_id=False):
-    for user in users_list:
-        if user['id'] == id_number or user['id'] == int(id_number):
-            if valid_id:
-                return True
-            else:
-                return user
-    
-    raise IdNotFoundError(id_number)
 
 ##########################################################
 
+##################### PRESCRIPTIONS ######################
 
-##################### DELETE-METHODS #######################
-@app.route('/users/<user_id>', methods=['DELETE'])
-def delete_user(user_id):
-    sql_commands.delete_user(user_id)
-    return json.dumps(get_users())
-
-
-
-#################### PUT-METHODS #########################
-@app.route('/users/<user_id>', methods=['PUT'])
-def users_put(user_id):
-    users = get_users(full_data=True)
-    data_to_modify = json.loads(request.data)
-    data_to_modify.pop('id', None)
-    data_to_modify.pop('date', None)
+@app.route('/prescriptions/<prescription_id>', methods=['GET'])
+def get_prescription(prescription_id):
     try:
-        user_modified = search_user_by_id(user_id, users)
-        if 'password' in data_to_modify:
-            data_to_modify['password'] = hash_password(data_to_modify['password'])
-            
+        prescription = prescriptions.get_prescription(prescription_id)
+
+        if not prescription:
+            raise IdNotFoundError(prescription_id)
+
+        return json.dumps(prescription)
+        
     except IdNotFoundError as e:
         return json.dumps({'Error': e.send_error_message()}), 404
 
-    if not data_to_modify:
-        return json.dumps({'Error': 'ERROR 400 "NO DATA TO MODIFY"'}), 400
-    
+
+@app.route('/users/<user_id>/prescriptions', methods=['GET'])
+def get_user_prescriptions(user_id):
     try:
-        sql_commands.update_user_row(data_to_modify, user_id)
-
-        for key in data_to_modify.keys():
-            if data_to_modify[key] == user_modified['id']:
-                raise ServerError
+        if users.get_user(user_id):
+            result = prescriptions.get_prescriptions_by_user(user_id)
             
-    except ServerError:
-        return json.dumps({'Error': 'Server problem'}), 500
+            return json.dumps(result)
+        else:
+            raise IdNotFoundError(user_id)
 
-    
-    return json.dumps(user_modified)  
+    except IdNotFoundError as e:
+        return json.dumps({'Error': e.send_error_message()}), 404    
+
+
+################################################ DELETE-METHODS #####################################################
+
+######################## USERS ##########################
+@app.route('/users/<user_id>', methods=['DELETE'])
+def delete_user(user_id):
+    try:
+        if not users.get_user(user_id):
+            raise IdNotFoundError(user_id)
+        
+        users.delete_user(user_id)
+        return {}
+
+    except IdNotFoundError as e:
+        return json.dumps({'Error': e.send_error_message()}), 404
+
+#########################################################
+
+################## PRESCRIPTIONS ########################
+@app.route('/prescriptions/<prescription_id>', methods=['DELETE'])
+def delete_prescript(prescription_id):
+    try:
+        prescription = prescriptions.get_prescription(prescription_id)
+        if not prescription:
+            raise IdNotFoundError(prescription_id)
+        else:
+            prescriptions.delete_prescription(prescription_id)
+            return {}
+
+    except IdNotFoundError as e:
+        return json.dumps({'Error': e.send_error_message()}), 404
+
+#########################################################
+
+################################################### PUT-METHODS ####################################################
+
+####################### USERS ##########################
+@app.route('/users/<user_id>', methods=['PUT'])
+def put_user(user_id):
+    try:
+        if not users.get_user(user_id):
+            raise IdNotFoundError(user_id)
+        
+        data_to_modify = json.loads(request.data)
+        data_to_modify.pop('id', None)
+        data_to_modify.pop('date', None)
+
+        if not data_to_modify:
+            return json.dumps({'Error': 'ERROR 400 "NO DATA TO MODIFY"'}), 400 
+
+        users.modify_user(user_id, data_to_modify)
+        return {}
+
+    except IdNotFoundError as e:
+        return json.dumps({'Error': e.send_error_message()}), 404
 
 ##############################################################
 
+####################### PRESCRIPTIONS ########################
+@app.route('/prescriptions/<prescription_id>', methods=['PUT'])
+def put_prescription(prescription_id):
+    try:
+        if not prescriptions.get_prescription(prescription_id):
+            raise IdNotFoundError(prescription_id)
 
-####################### POST-METHODS #########################
+        data_to_modify = json.loads(request.data)
+        data_to_modify.pop('id', None)
+        data_to_modify.pop('created_date', None)
 
+        if not data_to_modify:
+            return json.dumps({'Error': 'ERROR 400 "NO DATA TO MODIFY"'}), 400
+
+        if 'user_id' in data_to_modify:
+            return json.dumps({'Error': 'ERROR 400 "CANNOT MODIFY USER_ID, DELETE PRESCRIPTION AND CREATE A NEW ONE"'}), 400
+
+        prescriptions.modify_prescription(prescription_id, data_to_modify)
+        return {}    
+
+    except IdNotFoundError as e:
+        return json.dumps({'Error': e.send_error_message()}), 404
+
+
+###################################################### POST-METHODS #############################################################
+
+######################### USERS ##############################
 @app.route('/users', methods=['POST'])
-def user_post():
-    print(request.data)
+def post_user():
     user = json.loads(request.data)
     try:
-        if valid_request(user):
-            user['date'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            user['password'] = hash_password(user['password'])
-            
-            sql_response = sql_commands.post_new_user(user)
-                            
-            for value in sql_response[0]:
-                if isinstance(value, int):
-                    user['id'] = value
-            #app.logger.info('USERS RESULT:\n\n{}'.format(user))
-            return json.dumps(user)
+        if validate_user_body(user):
+            user_id = users.post_user(user)
+            return json.dumps({'id': user_id})
 
     except MissingFieldError as e:
         app.logger.debug(e.send_error_message())
         return json.dumps({'Error': e.send_error_message()}), 400
 
-def valid_request(data):
-    for header in ('name', 'email'):
-        if not header in data.keys():
-            app.logger.debug(header)
-            raise MissingFieldError(header)
+
+def validate_user_body(data):
+    for field in ('name', 'email'):
+        if not field in data.keys():
+            app.logger.debug(field)
+            raise MissingFieldError(field)
     return True
 
 
+######################################################
 
-def hash_password(password):
-    return hashlib.md5(password.encode()).hexdigest()
+################## PRESCRIPTIONS #####################
+@app.route('/prescriptions', methods=['POST'])
+def prescription_post():
+    prescription = json.loads(request.data)
+    try:
+        if validate_prescription_body(prescription):
+            if not users.get_user(prescription['user_id']):
+                raise IdNotFoundError(prescription['user_id'])
 
-def valid_id_number(id_number):
-    if not sql_commands.get_user_by_row('*', id_number):
-        return False
-    else:
-        return True
+            prescription_id = prescriptions.post_prescription(prescription)
+            return json.dumps({'id': prescription_id})
 
+    except IdNotFoundError as e:
+        app.logger.debug(e.send_error_message())
+        return json.dumps({'Error': e.send_error_message()}), 404
+
+    except MissingFieldError as e:
+        app.logger.debug(e.send_error_message())
+        return json.dumps({'Error': e.send_error_message()}), 400
+
+
+def validate_prescription_body(data):
+    for field in ('user_id', 'prescription_date', 'od', 'oi'):
+        if not field in data.keys():
+            app.logger.info(field)
+            raise MissingFieldError(field)
+    return True
+
+
+"""
+TODO: 
+ - delete_user must make a change on that user's prescriptions
+ - validating bodies must check if fields to POST or PUT have values (and the sql obligatory fields)
+""" 
