@@ -2,11 +2,11 @@ import sqlite3
 import os
 import argparse
 
-
+"""
 ap = argparse.ArgumentParser()
 ap.add_argument('-f', '--file', default='users.db')
 args = ap.parse_args()
-
+"""
 
 def execute_sql(sql_script):
     #conn = sqlite3.connect(args.file)
