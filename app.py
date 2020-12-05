@@ -40,6 +40,7 @@ def get_users(full_data=False):
 
 @app.route('/users/<user_id>', methods=['GET'])
 def get_user(user_id):
+
     fields = json.loads(request.data)
     try:
         user_data = users.get_user(user_id, fields)
