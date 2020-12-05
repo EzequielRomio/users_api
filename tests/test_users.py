@@ -5,6 +5,8 @@ import pytest
 
 os.environ['DATABASE'] = 'users_test.db'
 
+import create_data_base
+
 from app import app
 
 
