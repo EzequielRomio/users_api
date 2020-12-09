@@ -3,6 +3,7 @@ import json
 import logging
 
 from flask import Flask, request
+from flask_cors import CORS
 
 from models import users, prescriptions
 
@@ -24,6 +25,8 @@ class IdNotFoundError(RequirementError):
 
 app = Flask('users_api')
 
+CORS(app)
+
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
 
 logging.basicConfig(level=getattr(logging, LOG_LEVEL))
@@ -40,8 +43,8 @@ def get_users(full_data=False):
 
 @app.route('/users/<user_id>', methods=['GET'])
 def get_user(user_id):
-
-    fields = json.loads(request.data)
+    fields = request.json
+    #fields = json.loads(request.data)
     try:
         user_data = users.get_user(user_id, fields)
 
@@ -173,6 +176,7 @@ def put_prescription(prescription_id):
 @app.route('/users', methods=['POST'])
 def post_user():
     user = json.loads(request.data)
+    
     try:
         if validate_user_body(user):
             user_id = users.post_user(user)
@@ -184,8 +188,14 @@ def post_user():
 
 
 def validate_user_body(data):
-    for field in ('name', 'email'):
+    for field in ('name', 'last_name', 'email'):
         if not field in data.keys():
+        
+            app.logger.debug(field)
+            raise MissingFieldError(field)
+
+        elif not data[field]:
+        
             app.logger.debug(field)
             raise MissingFieldError(field)
     return True
