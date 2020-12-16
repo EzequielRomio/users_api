@@ -202,6 +202,8 @@ def test_get_users_list():
     print('test passed')
 
 
+################## PRESCRIPTIONS #####################
+
 def test_post_prescription():
     user = create_test_users()
     data = {

@@ -1,8 +1,11 @@
+import os
 import sqlite3
+
+DATABASE = os.environ.get('DATABASE', 'users.db')
 
 
 def sql_execute(query):
-    conn = sqlite3.connect('users.db')
+    conn = sqlite3.connect(DATABASE)
 
     cursor = conn.cursor()
     cursor.execute(query)
@@ -10,7 +13,7 @@ def sql_execute(query):
 
 
 def sql_execute_get_list(query):
-    conn = sqlite3.connect('users.db')
+    conn = sqlite3.connect(DATABASE)
 
     cursor = conn.cursor()
 
@@ -23,7 +26,7 @@ def sql_execute_get_list(query):
 
 
 def sql_execute_post(query, row):
-    conn = sqlite3.connect('users.db')
+    conn = sqlite3.connect(DATABASE)
 
     c = conn.cursor()
 
