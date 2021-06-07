@@ -8,27 +8,27 @@ os.environ['DATABASE'] = 'users_test.db'
 import create_data_base
 
 from app import app
-from tests.test_users import client, user
+#from tests.test_users import client, user
 
 
-@pytest.fixture
-def prescription(client, user):
-    prescription = {
-        'user_id': user['id'],
-        'prescription_date': '00-00-2000',
-        'od': 'GRADUACION OD',
-        'oi': 'GRADUACION OI',
-        'addition': '5.00',
-        'notes': 'ametropia',
-        'doctor': 'EZEQUIEL ROMIO'
-    }
+# @pytest.fixture
+# def prescription(client, user):
+#     prescription = {
+#         'user_id': user['id'],
+#         'prescription_date': '00-00-2000',
+#         'od': 'GRADUACION OD',
+#         'oi': 'GRADUACION OI',
+#         'addition': '5.00',
+#         'notes': 'ametropia',
+#         'doctor': 'EZEQUIEL ROMIO'
+#     }
 
-    response = client.post('/prescriptions', data=json.dumps(prescription))
-    prescription['id'] = json.loads(response.data)['id']
+#     response = client.post('/prescriptions', data=json.dumps(prescription))
+#     prescription['id'] = json.loads(response.data)['id']
 
-    yield prescription
+#     yield prescription
 
-    client.delete('/prescriptions/{}'.format(prescription['id']))
+#     client.delete('/prescriptions/{}'.format(prescription['id']))
 
 
 ############### post tests ############### 

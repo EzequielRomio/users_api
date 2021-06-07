@@ -124,3 +124,4 @@ dmypy.json
 # Pyre type checker
 .pyre/
 users.db
+users_test.db

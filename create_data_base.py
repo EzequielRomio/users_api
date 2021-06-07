@@ -2,15 +2,15 @@ import sqlite3
 import os
 import argparse
 
-"""
+
 ap = argparse.ArgumentParser()
-ap.add_argument('-f', '--file', default='users.db')
+ap.add_argument('-f', '--file', default='users_test.db')
 args = ap.parse_args()
-"""
+
 
 def execute_sql(sql_script):
-    #conn = sqlite3.connect(args.file)
-    conn = sqlite3.connect('users_test.db')
+    conn = sqlite3.connect(args.file)
+    #conn = sqlite3.connect('users_test.db')
     with open('sqls/' + sql_script, 'r') as f:
         query = f.read()
 

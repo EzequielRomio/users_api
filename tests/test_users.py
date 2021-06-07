@@ -10,30 +10,30 @@ import create_data_base
 from app import app
 
 
-@pytest.fixture
-def client():
-    app.config['TESTING'] = True
+# @pytest.fixture
+# def client():
+#     app.config['TESTING'] = True
 
-    with app.test_client() as client:
-        yield client
+#     with app.test_client() as client:
+#         yield client
 
 
-@pytest.fixture
-def user(client):
-    data = {
-        'name': 'User',
-        'last_name': 'Test',
-        'email': 'TEST@test.com',
-        'date': 'none',
-        'password': 'test-test'
-    }
-    response = client.post('/users', data=json.dumps(data))
-    user = json.loads(response.data)
-    user.update(data)
+# @pytest.fixture
+# def user(client):
+#     data = {
+#         'name': 'User',
+#         'last_name': 'Test',
+#         'email': 'TEST@test.com',
+#         'date': 'none',
+#         'password': 'test-test'
+#     }
+#     response = client.post('/users', data=json.dumps(data))
+#     user = json.loads(response.data)
+#     user.update(data)
 
-    yield user
+#     yield user
 
-    client.delete('/users/{}'.format(user['id']))
+#     client.delete('/users/{}'.format(user['id']))
 
 
 ###################### post tests ##########################
