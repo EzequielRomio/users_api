@@ -4,7 +4,7 @@ import argparse
 
 
 ap = argparse.ArgumentParser()
-ap.add_argument('-f', '--file', default='users_test.db')
+ap.add_argument('-f', '--file', default='users.db')
 args = ap.parse_args()
 
 
